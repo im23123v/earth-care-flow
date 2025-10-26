@@ -8,10 +8,12 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <Hero />
+      <div className="pt-20">
+        <Hero />
       <EcoCounters />
-      <Mission />
-      <Partners />
+        <Mission />
+        <Partners />
+      </div>
       
       {/* Footer */}
       <footer className="bg-foreground text-background py-8">
