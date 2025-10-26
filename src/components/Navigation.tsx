@@ -1,32 +1,43 @@
 import { Link, useLocation } from "react-router-dom";
-import { Leaf, MapPin, Calendar, TrendingUp, BookOpen, Award, FileText, MessageSquare, Menu, Calculator, Shield, Users, Package, Bot } from "lucide-react";
+import { Leaf, MapPin, Calendar, TrendingUp, BookOpen, Award, FileText, MessageSquare, Menu, Calculator, Shield, Users, Package, Bot, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navigation = () => {
   const location = useLocation();
   
-  const navItems = [
-    { to: "/", label: "Home", icon: Leaf },
-    { to: "/calculator", label: "Calculator", icon: Calculator },
-    { to: "/pickup", label: "Pickup", icon: Calendar },
-    { to: "/tracker", label: "Tracker", icon: Package },
-    { to: "/dropoff", label: "Drop-off", icon: MapPin },
-    { to: "/security", label: "Security", icon: Shield },
+  // Primary navigation items (visible in main menu)
+  const primaryNavItems = [
     { to: "/events", label: "Events", icon: Users },
     { to: "/impact", label: "Impact", icon: TrendingUp },
-    { to: "/learn", label: "Learn", icon: BookOpen },
     { to: "/rewards", label: "Rewards", icon: Award },
+    { to: "/ecoai", label: "EcoAI", icon: Bot },
+    { to: "/pickup", label: "Pickup", icon: Calendar },
+    { to: "/tracker", label: "Tracker", icon: Package },
+    { to: "/dropoff", label: "Dropoff", icon: MapPin },
+  ];
+
+  // Secondary navigation items (under "More" dropdown)
+  const secondaryNavItems = [
+    { to: "/", label: "Home", icon: Leaf },
+    { to: "/calculator", label: "Calculator", icon: Calculator },
+    { to: "/security", label: "Security", icon: Shield },
+    { to: "/learn", label: "Learn", icon: BookOpen },
     { to: "/transparency", label: "Transparency", icon: FileText },
     { to: "/pledge", label: "Pledge", icon: MessageSquare },
-    { to: "/ecoai", label: "EcoAI", icon: Bot },
   ];
 
   const isActive = (path: string) => location.pathname === path;
 
   const NavLinks = () => (
     <>
-      {navItems.map((item) => (
+      {primaryNavItems.map((item) => (
         <Link key={item.to} to={item.to}>
           <Button
             variant={isActive(item.to) ? "default" : "ghost"}
@@ -37,6 +48,56 @@ const Navigation = () => {
           </Button>
         </Link>
       ))}
+      
+      {/* More Dropdown for Desktop */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="gap-2 hidden lg:inline-flex">
+            <MoreHorizontal className="h-4 w-4" />
+            <span>More</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48 bg-background/95 backdrop-blur-xl border-border/50">
+          {secondaryNavItems.map((item) => (
+            <DropdownMenuItem key={item.to} asChild>
+              <Link to={item.to} className="flex items-center gap-2 cursor-pointer">
+                <item.icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </Link>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+
+  const MobileNavLinks = () => (
+    <>
+      {primaryNavItems.map((item) => (
+        <Link key={item.to} to={item.to}>
+          <Button
+            variant={isActive(item.to) ? "default" : "ghost"}
+            className="gap-2 w-full justify-start"
+          >
+            <item.icon className="h-4 w-4" />
+            <span>{item.label}</span>
+          </Button>
+        </Link>
+      ))}
+      <div className="border-t border-border/50 my-2 pt-2">
+        <p className="text-xs text-muted-foreground px-4 mb-2">More</p>
+        {secondaryNavItems.map((item) => (
+          <Link key={item.to} to={item.to}>
+            <Button
+              variant={isActive(item.to) ? "default" : "ghost"}
+              className="gap-2 w-full justify-start"
+            >
+              <item.icon className="h-4 w-4" />
+              <span>{item.label}</span>
+            </Button>
+          </Link>
+        ))}
+      </div>
     </>
   );
 
@@ -68,7 +129,7 @@ const Navigation = () => {
               </SheetTrigger>
               <SheetContent className="bg-background/95 backdrop-blur-xl">
                 <div className="flex flex-col gap-4 mt-8">
-                  <NavLinks />
+                  <MobileNavLinks />
                 </div>
               </SheetContent>
             </Sheet>

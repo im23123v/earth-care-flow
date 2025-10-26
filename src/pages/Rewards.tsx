@@ -1,16 +1,26 @@
 import Navigation from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Award, Trophy, Star, Medal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Award, Trophy, Star, Medal, Download, CheckCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "@/hooks/use-toast";
 
 const Rewards = () => {
   const badges = [
-    { name: "First Step", icon: Star, earned: true, description: "Completed your first recycling" },
-    { name: "Eco Warrior", icon: Award, earned: true, description: "Recycled 10+ devices" },
-    { name: "Green Champion", icon: Trophy, earned: false, description: "Recycled 50+ devices" },
-    { name: "Planet Hero", icon: Medal, earned: false, description: "Recycled 100+ devices" },
+    { name: "First Step", icon: Star, earned: true, description: "Completed your first recycling", hasCertificate: true },
+    { name: "Eco Warrior", icon: Award, earned: true, description: "Recycled 10+ devices", hasCertificate: true },
+    { name: "Green Champion", icon: Trophy, earned: false, description: "Recycled 50+ devices", hasCertificate: true },
+    { name: "Planet Hero", icon: Medal, earned: false, description: "Recycled 100+ devices", hasCertificate: true },
   ];
+
+  const handleDownloadCertificate = (badgeName: string) => {
+    toast({
+      title: "Certificate Downloaded",
+      description: `Your ${badgeName} e-certificate has been downloaded successfully!`,
+    });
+    // In production, this would trigger actual certificate generation and download
+  };
 
   const leaderboard = [
     { rank: 1, name: "Sarah Green", points: 15420, devices: 127 },
@@ -67,8 +77,26 @@ const Rewards = () => {
                   </div>
                   <h3 className="font-semibold mb-2">{badge.name}</h3>
                   <p className="text-xs text-muted-foreground">{badge.description}</p>
-                  {badge.earned && (
-                    <Badge className="mt-3 bg-primary/20 text-primary">Earned</Badge>
+                  {badge.earned ? (
+                    <div className="mt-3 flex flex-col gap-2">
+                      <Badge className="bg-primary/20 text-primary">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Earned
+                      </Badge>
+                      {badge.hasCertificate && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDownloadCertificate(badge.name)}
+                          className="gap-2"
+                        >
+                          <Download className="h-3 w-3" />
+                          E-Certificate
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <Badge variant="secondary" className="mt-3">Locked</Badge>
                   )}
                 </Card>
               ))}
