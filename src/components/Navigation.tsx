@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Leaf, MapPin, Calendar, TrendingUp, BookOpen, Award, FileText, MessageSquare, Menu, Calculator, Shield, Users, Package } from "lucide-react";
+import { Leaf, MapPin, Calendar, TrendingUp, BookOpen, Award, FileText, MessageSquare, Menu, Calculator, Shield, Users, Package, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -8,17 +8,18 @@ const Navigation = () => {
   
   const navItems = [
     { to: "/", label: "Home", icon: Leaf },
-    { to: "/calculator", label: "E-Waste Calculator", icon: Calculator },
-    { to: "/pickup", label: "Schedule Pickup", icon: Calendar },
-    { to: "/tracker", label: "Track Pickup", icon: Package },
-    { to: "/dropoff", label: "Drop-off Locator", icon: MapPin },
-    { to: "/security", label: "Data Security", icon: Shield },
-    { to: "/events", label: "Community Events", icon: Users },
+    { to: "/calculator", label: "Calculator", icon: Calculator },
+    { to: "/pickup", label: "Pickup", icon: Calendar },
+    { to: "/tracker", label: "Tracker", icon: Package },
+    { to: "/dropoff", label: "Drop-off", icon: MapPin },
+    { to: "/security", label: "Security", icon: Shield },
+    { to: "/events", label: "Events", icon: Users },
     { to: "/impact", label: "Impact", icon: TrendingUp },
     { to: "/learn", label: "Learn", icon: BookOpen },
     { to: "/rewards", label: "Rewards", icon: Award },
     { to: "/transparency", label: "Transparency", icon: FileText },
-    { to: "/pledge", label: "Pledge Wall", icon: MessageSquare },
+    { to: "/pledge", label: "Pledge", icon: MessageSquare },
+    { to: "/ecoai", label: "EcoAI", icon: Bot },
   ];
 
   const isActive = (path: string) => location.pathname === path;

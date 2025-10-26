@@ -15,6 +15,7 @@ import Learn from "./pages/Learn";
 import Rewards from "./pages/Rewards";
 import Transparency from "./pages/Transparency";
 import Pledge from "./pages/Pledge";
+import EcoAI from "./pages/EcoAI";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/transparency" element={<Transparency />} />
           <Route path="/pledge" element={<Pledge />} />
+          <Route path="/ecoai" element={<EcoAI />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
