@@ -20,7 +20,7 @@ const EcoAI = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Navigation />
-      <div className="pt-24 pb-12 px-4">
+      <div className="page-container pt-12 pb-12 px-4">
         <div className="container mx-auto max-w-7xl">
           {/* Header */}
           <div className="text-center mb-12 animate-fade-in">

@@ -101,3 +101,13 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .page-container {
+    @apply pt-20 md:pt-24;
+  }
+  
+  .shadow-eco {
+    box-shadow: var(--shadow-eco);
+  }
+}
