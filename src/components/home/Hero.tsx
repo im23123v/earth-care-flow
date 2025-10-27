@@ -8,12 +8,12 @@ const Hero = () => {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-4xl text-center text-primary-foreground animate-fade-in">
           <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Transform E-Waste into
-            <span className="block mt-2">Environmental Impact</span>
+            Telangana's E-Waste
+            <span className="block mt-2">Revolution Starts Here</span>
           </h1>
           <p className="mb-8 text-lg md:text-xl opacity-95 max-w-2xl mx-auto">
-            Join thousands making a difference. Schedule pickups, find recycling centers,
-            and track your contribution to a sustainable future.
+            Join Telangana's mission for sustainable e-waste management. TSPCB-authorized platform 
+            for responsible electronics recycling with transparent tracking and rewards.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/pickup">

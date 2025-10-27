@@ -1,25 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon, MapPin, Package } from "lucide-react";
+import { CalendarIcon, MapPin, Package, Building2, Phone } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Fix for default marker icons in react-leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
+
+// Telangana collection centers
+const telanganaCollectionCenters = [
+  { id: 1, name: "E-Waste Collection Center - Hyderabad", lat: 17.385044, lng: 78.486671, address: "Banjara Hills, Hyderabad", phone: "+91 40 2345 6789", district: "Hyderabad" },
+  { id: 2, name: "Green Recycling Hub - Secunderabad", lat: 17.443507, lng: 78.474736, address: "Secunderabad, Hyderabad", phone: "+91 40 2345 6790", district: "Hyderabad" },
+  { id: 3, name: "E-Waste Center - Warangal", lat: 18.002358, lng: 79.588440, address: "Hanamkonda, Warangal", phone: "+91 870 234 5678", district: "Warangal" },
+  { id: 4, name: "TSPCB Authorized Center - Nizamabad", lat: 18.672314, lng: 78.094528, address: "Nizamabad Urban", phone: "+91 8461 234567", district: "Nizamabad" },
+  { id: 5, name: "Eco Collection Point - Khammam", lat: 17.247499, lng: 80.143654, address: "Khammam City", phone: "+91 8742 234567", district: "Khammam" },
+];
 
 const Pickup = () => {
   const [date, setDate] = useState<Date>();
+  const [selectedDistrict, setSelectedDistrict] = useState<string>("all");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
+    district: "",
     deviceType: "",
     quantity: "",
     notes: "",
@@ -27,21 +49,106 @@ const Pickup = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Pickup scheduled successfully! We'll send you a confirmation email.");
+    toast.success("Pickup scheduled successfully! TSPCB-authorized pickup confirmed.");
   };
+
+  const filteredCenters = selectedDistrict === "all" 
+    ? telanganaCollectionCenters 
+    : telanganaCollectionCenters.filter(c => c.district === selectedDistrict);
+
+  const telanganaDistricts = [
+    "Hyderabad", "Warangal", "Nizamabad", "Khammam", "Karimnagar", 
+    "Rangareddy", "Medak", "Nalgonda", "Mahbubnagar", "Adilabad"
+  ];
 
   return (
     <div className="min-h-screen bg-secondary/20">
       <Navigation />
       
       <div className="container mx-auto px-4 py-12">
+        <div className="text-center mb-12 animate-fade-in">
+          <h1 className="text-4xl font-bold mb-4">Schedule E-Waste Pickup - Telangana</h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Free doorstep collection across Telangana. TSPCB-authorized e-waste management with transparent tracking.
+          </p>
+        </div>
+
+        {/* Interactive Map Section */}
+        <Card className="mb-12 shadow-eco animate-fade-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-primary" />
+              E-Waste Collection Centers in Telangana
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <Label>Filter by District</Label>
+              <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Districts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Districts</SelectItem>
+                  {Array.from(new Set(telanganaCollectionCenters.map(c => c.district))).map(district => (
+                    <SelectItem key={district} value={district}>{district}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="h-[400px] rounded-lg overflow-hidden border">
+              <MapContainer 
+                center={[17.385044, 78.486671]} 
+                zoom={7} 
+                style={{ height: "100%", width: "100%" }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {filteredCenters.map((center) => (
+                  <Marker key={center.id} position={[center.lat, center.lng]}>
+                    <Popup>
+                      <div className="p-2">
+                        <h3 className="font-semibold text-sm mb-1">{center.name}</h3>
+                        <p className="text-xs text-muted-foreground mb-1">{center.address}</p>
+                        <p className="text-xs flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {center.phone}
+                        </p>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
+
+            <div className="mt-6 grid gap-4">
+              <h3 className="font-semibold">Collection Centers ({filteredCenters.length})</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                {filteredCenters.map((center) => (
+                  <Card key={center.id} className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Building2 className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm mb-1">{center.name}</h4>
+                        <p className="text-xs text-muted-foreground mb-1">{center.address}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {center.phone}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pickup Form */}
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-8 animate-fade-in">
-            <h1 className="text-4xl font-bold mb-4">Schedule E-Waste Pickup</h1>
-            <p className="text-muted-foreground">
-              Free doorstep collection for your electronic waste. We'll handle the rest responsibly.
-            </p>
-          </div>
 
           <Card className="p-8 shadow-eco animate-scale-in">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -79,6 +186,23 @@ const Pickup = () => {
               </div>
 
               <div>
+                <Label htmlFor="district">District *</Label>
+                <Select
+                  value={formData.district}
+                  onValueChange={(value) => setFormData({ ...formData, district: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your district" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {telanganaDistricts.map(district => (
+                      <SelectItem key={district} value={district}>{district}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label htmlFor="address">Pickup Address *</Label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
@@ -87,7 +211,7 @@ const Pickup = () => {
                     className="pl-10"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    placeholder="Enter your complete address"
+                    placeholder="Enter your complete address in Telangana"
                     required
                   />
                 </div>
@@ -165,7 +289,7 @@ const Pickup = () => {
                   htmlFor="terms"
                   className="text-sm text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  I confirm the devices don't contain hazardous materials and agree to data sanitization
+                  I confirm compliance with TSPCB e-waste guidelines and agree to authorized data sanitization
                 </label>
               </div>
 

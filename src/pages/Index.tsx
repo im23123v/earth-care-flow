@@ -4,6 +4,7 @@ import EcoCounters from "@/components/home/EcoCounters";
 import FeatureTiles from "@/components/home/FeatureTiles";
 import Mission from "@/components/home/Mission";
 import Partners from "@/components/home/Partners";
+import GovtInitiatives from "@/components/home/GovtInitiatives";
 
 const Index = () => {
   return (
@@ -13,6 +14,7 @@ const Index = () => {
         <Hero />
         <EcoCounters />
         <FeatureTiles />
+        <GovtInitiatives />
         <Mission />
         <Partners />
       </div>
