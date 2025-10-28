@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, TrendingUp, Leaf, Zap, Users, AlertCircle, Shield, Building2, Scale, MapPin } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from "recharts";
 import { toast } from "sonner";
-import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
+import TelanganaImpactMap from "@/components/TelanganaImpactMap";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -112,49 +112,7 @@ const Impact = () => {
           </CardHeader>
           <CardContent>
             <div className="h-[500px] rounded-lg overflow-hidden border mb-4">
-              <MapContainer 
-                center={[17.7, 79.0]} 
-                zoom={7} 
-                style={{ height: "100%", width: "100%" }}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {districtImpactData.map((district) => (
-                  <Circle
-                    key={district.name}
-                    center={[district.lat, district.lng]}
-                    radius={district.recycled * 5}
-                    pathOptions={{
-                      fillColor: district.rate >= 70 ? "hsl(142, 76%, 36%)" : district.rate >= 60 ? "hsl(45, 90%, 60%)" : "hsl(0, 84%, 60%)",
-                      fillOpacity: 0.5,
-                      color: district.rate >= 70 ? "hsl(142, 76%, 36%)" : district.rate >= 60 ? "hsl(45, 90%, 60%)" : "hsl(0, 84%, 60%)",
-                      weight: 2,
-                    }}
-                  >
-                    <Popup>
-                      <div className="p-2 min-w-[200px]">
-                        <h3 className="font-semibold text-base mb-2">{district.name} District</h3>
-                        <div className="space-y-1 text-sm">
-                          <p className="flex justify-between">
-                            <span className="text-muted-foreground">Generated:</span>
-                            <span className="font-medium">{district.generated.toLocaleString()} MT</span>
-                          </p>
-                          <p className="flex justify-between">
-                            <span className="text-muted-foreground">Recycled:</span>
-                            <span className="font-medium text-primary">{district.recycled.toLocaleString()} MT</span>
-                          </p>
-                          <p className="flex justify-between">
-                            <span className="text-muted-foreground">Rate:</span>
-                            <span className="font-semibold text-primary">{district.rate}%</span>
-                          </p>
-                        </div>
-                      </div>
-                    </Popup>
-                  </Circle>
-                ))}
-              </MapContainer>
+              <TelanganaImpactMap districtData={districtImpactData} />
             </div>
             <div className="flex items-center gap-6 text-sm">
               <div className="flex items-center gap-2">

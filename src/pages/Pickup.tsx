@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarIcon, MapPin, Package, Building2, Phone } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import CollectionCentersMap from "@/components/CollectionCentersMap";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -102,30 +102,7 @@ const Pickup = () => {
             </div>
             
             <div className="h-[400px] rounded-lg overflow-hidden border">
-              <MapContainer 
-                center={[17.385044, 78.486671]} 
-                zoom={7} 
-                style={{ height: "100%", width: "100%" }}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {filteredCenters.map((center) => (
-                  <Marker key={center.id} position={[center.lat, center.lng]}>
-                    <Popup>
-                      <div className="p-2">
-                        <h3 className="font-semibold text-sm mb-1">{center.name}</h3>
-                        <p className="text-xs text-muted-foreground mb-1">{center.address}</p>
-                        <p className="text-xs flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          {center.phone}
-                        </p>
-                      </div>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
+              <CollectionCentersMap centers={filteredCenters} />
             </div>
 
             <div className="mt-6 grid gap-4">
