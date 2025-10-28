@@ -1,8 +1,13 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Calendar, MapPin, Clock, ArrowRight } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Users, Calendar, MapPin, Clock, ArrowRight, Check } from "lucide-react";
+import { toast } from "sonner";
 
 const events = [
   {
@@ -48,6 +53,31 @@ const events = [
 ];
 
 const Events = () => {
+  const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [registrationForm, setRegistrationForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+
+  const handleRegister = (event: typeof events[0]) => {
+    setSelectedEvent(event);
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmitRegistration = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success(`Successfully registered for ${selectedEvent?.title}! Check your email for confirmation.`);
+    setIsDialogOpen(false);
+    setRegistrationForm({ name: "", email: "", phone: "" });
+  };
+
+  const handleGetDirections = (address: string) => {
+    const query = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-card">
       <Navigation />
@@ -120,11 +150,11 @@ const Events = () => {
                     </div>
 
                     <div className="flex gap-3">
-                      <Button className="flex-1">
+                      <Button className="flex-1" onClick={() => handleRegister(event)}>
                         <Calendar className="mr-2 h-4 w-4" />
                         Register Now
                       </Button>
-                      <Button variant="outline">
+                      <Button variant="outline" onClick={() => handleGetDirections(event.address)}>
                         <MapPin className="mr-2 h-4 w-4" />
                         Get Directions
                       </Button>
@@ -149,6 +179,58 @@ const Events = () => {
           </div>
         </div>
       </div>
+
+      {/* Registration Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Register for Event</DialogTitle>
+            <DialogDescription>
+              {selectedEvent?.title}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmitRegistration} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name *</Label>
+              <Input
+                id="name"
+                value={registrationForm.name}
+                onChange={(e) => setRegistrationForm({ ...registrationForm, name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={registrationForm.email}
+                onChange={(e) => setRegistrationForm({ ...registrationForm, email: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number *</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={registrationForm.phone}
+                onChange={(e) => setRegistrationForm({ ...registrationForm, phone: e.target.value })}
+                required
+              />
+            </div>
+            <div className="bg-primary/5 p-4 rounded-lg text-sm">
+              <p className="font-medium mb-1">Event Details:</p>
+              <p className="text-muted-foreground">{selectedEvent?.date} at {selectedEvent?.time}</p>
+              <p className="text-muted-foreground">{selectedEvent?.location}</p>
+            </div>
+            <Button type="submit" className="w-full">
+              <Check className="mr-2 h-4 w-4" />
+              Confirm Registration
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

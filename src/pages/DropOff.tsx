@@ -38,12 +38,16 @@ const DropOff = () => {
     : telanganaDropOffCenters.filter(c => c.district === selectedDistrict);
 
   return (
-    <div className="min-h-screen bg-secondary/20">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Navigation />
       
       <div className="container mx-auto px-4 page-container py-12">
         <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-4xl font-bold mb-4">Find Drop-off Centers - Telangana</h1>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
+            <MapPin className="h-5 w-5" />
+            <span className="text-sm font-medium">TSPCB Certified Centers</span>
+          </div>
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-hero bg-clip-text text-transparent">Find Drop-off Centers</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Locate the nearest TSPCB-certified e-waste recycling center in Telangana. All locations follow
             strict environmental and data security standards.

@@ -1,11 +1,35 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, TrendingUp, Leaf, Zap, Users, AlertCircle, Shield, Building2, Scale } from "lucide-react";
+import { Download, TrendingUp, Leaf, Zap, Users, AlertCircle, Shield, Building2, Scale, MapPin } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from "recharts";
 import { toast } from "sonner";
+import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Fix for default marker icons
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
 
 const Impact = () => {
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+
+  // Telangana district impact data for map
+  const districtImpactData = [
+    { name: "Hyderabad", lat: 17.385044, lng: 78.486671, recycled: 19260, generated: 27720, rate: 69.5 },
+    { name: "Warangal", lat: 18.002358, lng: 79.588440, recycled: 7704, generated: 11070, rate: 69.6 },
+    { name: "Nizamabad", lat: 18.672314, lng: 78.094528, recycled: 5136, generated: 7380, rate: 69.6 },
+    { name: "Khammam", lat: 17.247499, lng: 80.143654, recycled: 4280, generated: 6150, rate: 69.6 },
+    { name: "Karimnagar", lat: 18.439453, lng: 79.124820, recycled: 3424, generated: 4920, rate: 69.6 },
+    { name: "Rangareddy", lat: 17.308, lng: 78.388, recycled: 2568, generated: 3690, rate: 69.6 },
+  ];
+
   // Telangana E-Waste Data (yearly generation and recycling)
   const telanganaYearlyData = [
     { year: "2019", generated: 28500, recycled: 8200, percentage: 28.8 },
@@ -78,8 +102,79 @@ const Impact = () => {
           </Card>
         </div>
 
-        {/* Yearly Trend - Generation vs Recycling */}
+        {/* Interactive Telangana Impact Map */}
         <Card className="mb-12 shadow-eco animate-fade-in" style={{ animationDelay: "400ms" }}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-primary" />
+              Telangana E-Waste Impact Map
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[500px] rounded-lg overflow-hidden border mb-4">
+              <MapContainer 
+                center={[17.7, 79.0]} 
+                zoom={7} 
+                style={{ height: "100%", width: "100%" }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {districtImpactData.map((district) => (
+                  <Circle
+                    key={district.name}
+                    center={[district.lat, district.lng]}
+                    radius={district.recycled * 5}
+                    pathOptions={{
+                      fillColor: district.rate >= 70 ? "hsl(142, 76%, 36%)" : district.rate >= 60 ? "hsl(45, 90%, 60%)" : "hsl(0, 84%, 60%)",
+                      fillOpacity: 0.5,
+                      color: district.rate >= 70 ? "hsl(142, 76%, 36%)" : district.rate >= 60 ? "hsl(45, 90%, 60%)" : "hsl(0, 84%, 60%)",
+                      weight: 2,
+                    }}
+                  >
+                    <Popup>
+                      <div className="p-2 min-w-[200px]">
+                        <h3 className="font-semibold text-base mb-2">{district.name} District</h3>
+                        <div className="space-y-1 text-sm">
+                          <p className="flex justify-between">
+                            <span className="text-muted-foreground">Generated:</span>
+                            <span className="font-medium">{district.generated.toLocaleString()} MT</span>
+                          </p>
+                          <p className="flex justify-between">
+                            <span className="text-muted-foreground">Recycled:</span>
+                            <span className="font-medium text-primary">{district.recycled.toLocaleString()} MT</span>
+                          </p>
+                          <p className="flex justify-between">
+                            <span className="text-muted-foreground">Rate:</span>
+                            <span className="font-semibold text-primary">{district.rate}%</span>
+                          </p>
+                        </div>
+                      </div>
+                    </Popup>
+                  </Circle>
+                ))}
+              </MapContainer>
+            </div>
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: "hsl(142, 76%, 36%)" }}></div>
+                <span>High Rate (&ge;70%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: "hsl(45, 90%, 60%)" }}></div>
+                <span>Medium (60-70%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: "hsl(0, 84%, 60%)" }}></div>
+                <span>Low (&lt;60%)</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Yearly Trend - Generation vs Recycling */}
+        <Card className="mb-12 shadow-eco animate-fade-in" style={{ animationDelay: "500ms" }}>
           <CardHeader>
             <CardTitle>Telangana E-Waste: Generation vs Recycling (Metric Tons)</CardTitle>
           </CardHeader>
@@ -120,7 +215,7 @@ const Impact = () => {
         {/* Charts Row */}
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
           {/* District-wise Distribution */}
-          <Card className="shadow-eco animate-fade-in" style={{ animationDelay: "500ms" }}>
+          <Card className="shadow-eco animate-fade-in" style={{ animationDelay: "600ms" }}>
             <CardHeader>
               <CardTitle>District-wise E-Waste Contribution</CardTitle>
             </CardHeader>
@@ -148,7 +243,7 @@ const Impact = () => {
           </Card>
 
           {/* Device Type Distribution */}
-          <Card className="shadow-eco animate-fade-in" style={{ animationDelay: "600ms" }}>
+          <Card className="shadow-eco animate-fade-in" style={{ animationDelay: "700ms" }}>
             <CardHeader>
               <CardTitle>Device Type Distribution</CardTitle>
             </CardHeader>
@@ -167,7 +262,7 @@ const Impact = () => {
         </div>
 
         {/* Government Initiatives */}
-        <Card className="mb-12 shadow-eco animate-fade-in" style={{ animationDelay: "700ms" }}>
+        <Card className="mb-12 shadow-eco animate-fade-in" style={{ animationDelay: "800ms" }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-6 w-6 text-primary" />
@@ -275,7 +370,7 @@ const Impact = () => {
         </Card>
 
         {/* Download Report */}
-        <Card className="p-8 text-center shadow-eco animate-scale-in" style={{ animationDelay: "800ms" }}>
+        <Card className="p-8 text-center shadow-eco animate-scale-in" style={{ animationDelay: "900ms" }}>
           <h3 className="text-2xl font-semibold mb-4">Download Telangana E-Waste Report 2024</h3>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             Get comprehensive data on e-waste generation, recycling rates, district-wise breakdown, 
