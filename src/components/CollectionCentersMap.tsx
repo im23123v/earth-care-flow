@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Phone } from "lucide-react";
 import "leaflet/dist/leaflet.css";
@@ -24,8 +25,19 @@ const CollectionCentersMap = ({
   center = [17.385044, 78.486671], 
   zoom = 7 
 }: CollectionCentersMapProps) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className="w-full h-full flex items-center justify-center">Loading map...</div>;
+  }
+
   return (
     <MapContainer 
+      key={`collection-map-${centers.length}`}
       center={center} 
       zoom={zoom} 
       style={{ height: "100%", width: "100%" }}

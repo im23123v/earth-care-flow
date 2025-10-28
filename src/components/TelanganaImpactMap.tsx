@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -15,8 +16,19 @@ interface TelanganaImpactMapProps {
 }
 
 const TelanganaImpactMap = ({ districtData }: TelanganaImpactMapProps) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return <div className="w-full h-full flex items-center justify-center">Loading map...</div>;
+  }
+
   return (
     <MapContainer 
+      key="telangana-impact-map"
       center={[17.7, 79.0]} 
       zoom={7} 
       style={{ height: "100%", width: "100%" }}
