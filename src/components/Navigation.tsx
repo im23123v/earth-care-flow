@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Leaf, MapPin, Calendar, TrendingUp, BookOpen, Award, FileText, MessageSquare, Menu, Calculator, Shield, Users, Package, Bot, MoreHorizontal } from "lucide-react";
+import { Leaf, MapPin, Calendar, TrendingUp, BookOpen, Award, FileText, MessageSquare, Menu, Calculator, Shield, Users, Package, Bot, MoreHorizontal, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -14,6 +14,7 @@ const Navigation = () => {
   
   // Primary navigation items (visible in main menu)
   const primaryNavItems = [
+    { to: "/jntuh-uces", label: "JNTUH UCES", icon: Building2 },
     { to: "/events", label: "Events", icon: Users },
     { to: "/impact", label: "Impact", icon: TrendingUp },
     { to: "/rewards", label: "Rewards", icon: Award },
