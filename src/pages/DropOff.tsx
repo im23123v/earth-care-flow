@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Search, Phone, Clock, Navigation as NavigationIcon, Building2 } from "lucide-react";
-import CollectionCentersMap from "@/components/CollectionCentersMap";
+import collectionMapImage from "@/assets/collection-centers-map.jpg";
 
 // Telangana e-waste drop-off centers
 const telanganaDropOffCenters = [
@@ -82,8 +82,12 @@ const DropOff = () => {
                 </Select>
               </div>
               
-              <div className="h-[500px] rounded-lg overflow-hidden border mb-6">
-                <CollectionCentersMap centers={filteredCenters} />
+              <div className="rounded-lg overflow-hidden border mb-6">
+                <img 
+                  src={collectionMapImage} 
+                  alt="E-Waste Drop-off Centers Map" 
+                  className="w-full h-[500px] object-cover"
+                />
               </div>
             </CardContent>
           </Card>

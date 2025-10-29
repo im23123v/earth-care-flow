@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { CalendarIcon, MapPin, Package, Building2, Phone } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import CollectionCentersMap from "@/components/CollectionCentersMap";
+import collectionMapImage from "@/assets/collection-centers-map.jpg";
 
 // Telangana collection centers
 const telanganaCollectionCenters = [
@@ -91,8 +91,12 @@ const Pickup = () => {
               </Select>
             </div>
             
-            <div className="h-[400px] rounded-lg overflow-hidden border">
-              <CollectionCentersMap centers={filteredCenters} />
+            <div className="rounded-lg overflow-hidden border">
+              <img 
+                src={collectionMapImage} 
+                alt="E-Waste Collection Centers Map" 
+                className="w-full h-[400px] object-cover"
+              />
             </div>
 
             <div className="mt-6 grid gap-4">

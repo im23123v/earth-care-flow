@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, TrendingUp, Leaf, Zap, Users, AlertCircle, Shield, Building2, Scale, MapPin } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { toast } from "sonner";
-import TelanganaImpactMap from "@/components/TelanganaImpactMap";
+import telanganaMapImage from "@/assets/telangana-impact-map.jpg";
 
 const Impact = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
@@ -101,8 +101,12 @@ const Impact = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[500px] rounded-lg overflow-hidden border mb-4">
-              <TelanganaImpactMap districtData={districtImpactData} />
+            <div className="rounded-lg overflow-hidden border mb-4">
+              <img 
+                src={telanganaMapImage} 
+                alt="Telangana E-Waste Impact Map" 
+                className="w-full h-[500px] object-cover"
+              />
             </div>
             <div className="flex items-center gap-6 text-sm">
               <div className="flex items-center gap-2">
