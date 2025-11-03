@@ -56,7 +56,7 @@ const Impact = () => {
     <div className="min-h-screen bg-secondary/20">
       <Navigation />
       
-      <div className="container mx-auto px-4 page-container py-12">
+      <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="text-center mb-12 animate-fade-in">
           <h1 className="text-4xl font-bold mb-4">Telangana E-Waste Impact</h1>
           <p className="text-muted-foreground max-w-3xl mx-auto">
@@ -101,11 +101,15 @@ const Impact = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="rounded-lg overflow-hidden border mb-4">
-              <img 
-                src={telanganaMapImage} 
-                alt="Telangana E-Waste Impact Map" 
-                className="w-full h-[500px] object-cover"
+            <div className="rounded-lg overflow-hidden border mb-4 h-[500px]">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3063939.3847894864!2d77.38901!3d18.1124!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a35f5f8a16b2c7f%3A0xf4b5c4b5c4b5c4b5!2sTelangana!5e0!3m2!1sen!2sin!4v1234567890"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
             <div className="flex items-center gap-6 text-sm">

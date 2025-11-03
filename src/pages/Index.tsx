@@ -5,6 +5,7 @@ import FeatureTiles from "@/components/home/FeatureTiles";
 import Mission from "@/components/home/Mission";
 import Partners from "@/components/home/Partners";
 import GovtInitiatives from "@/components/home/GovtInitiatives";
+import ModernFeatures from "@/components/home/ModernFeatures";
 
 const Index = () => {
   return (
@@ -13,6 +14,7 @@ const Index = () => {
       <div className="pt-20">
         <Hero />
         <EcoCounters />
+        <ModernFeatures />
         <FeatureTiles />
         <GovtInitiatives />
         <Mission />

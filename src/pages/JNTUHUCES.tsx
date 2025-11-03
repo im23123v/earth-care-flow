@@ -1,6 +1,10 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Recycle, 
   Leaf, 
@@ -13,44 +17,51 @@ import {
   TreePine,
   Droplets,
   Zap,
-  Download
+  Download,
+  Plus,
+  Mic
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { toast } from "sonner";
 
 const JNTUHUCES = () => {
-  // Waste collection data by month
-  const monthlyWasteData = [
+  const [department, setDepartment] = useState("");
+  const [wasteAmount, setWasteAmount] = useState("");
+  const [wasteType, setWasteType] = useState("");
+  const [showVoiceAgent, setShowVoiceAgent] = useState(false);
+
+  // State for dynamic data
+  const [totalEWaste, setTotalEWaste] = useState(4210);
+  const [monthlyData, setMonthlyData] = useState([
     { month: "Jan", ewaste: 450, plastic: 1200, paper: 800, organic: 2500 },
     { month: "Feb", ewaste: 520, plastic: 1350, paper: 850, organic: 2600 },
     { month: "Mar", ewaste: 680, plastic: 1450, paper: 920, organic: 2800 },
     { month: "Apr", ewaste: 750, plastic: 1500, paper: 1000, organic: 3000 },
     { month: "May", ewaste: 890, plastic: 1600, paper: 1100, organic: 3200 },
     { month: "Jun", ewaste: 920, plastic: 1700, paper: 1200, organic: 3400 },
-  ];
+  ]);
 
-  // Waste category distribution
-  const wasteDistribution = [
-    { name: "E-Waste", value: 4210, color: "#10b981" },
-    { name: "Plastic", value: 8800, color: "#3b82f6" },
-    { name: "Paper", value: 5870, color: "#f59e0b" },
-    { name: "Organic", value: 17500, color: "#8b5cf6" },
-  ];
-
-  // Department-wise e-waste collection
-  const departmentData = [
+  const [departmentStats, setDepartmentStats] = useState([
     { dept: "CSE", collected: 1250 },
     { dept: "ECE", collected: 980 },
     { dept: "EEE", collected: 720 },
     { dept: "Mech", collected: 650 },
     { dept: "Civil", collected: 610 },
+  ]);
+
+  // Waste category distribution
+  const wasteDistribution = [
+    { name: "E-Waste", value: totalEWaste, color: "#10b981" },
+    { name: "Plastic", value: 8800, color: "#3b82f6" },
+    { name: "Paper", value: 5870, color: "#f59e0b" },
+    { name: "Organic", value: 17500, color: "#8b5cf6" },
   ];
 
   const impactStats = [
-    { icon: Recycle, label: "Total E-Waste Collected", value: "4.2 Tons", color: "text-green-500" },
-    { icon: TreePine, label: "Trees Saved", value: "156", color: "text-emerald-500" },
-    { icon: Droplets, label: "Water Saved", value: "12,500 L", color: "text-blue-500" },
-    { icon: Zap, label: "Energy Saved", value: "8,450 kWh", color: "text-yellow-500" },
+    { icon: Recycle, label: "Total E-Waste Collected", value: `${(totalEWaste / 1000).toFixed(1)} Tons`, color: "text-green-500" },
+    { icon: TreePine, label: "Trees Saved", value: Math.floor(totalEWaste * 0.037).toString(), color: "text-emerald-500" },
+    { icon: Droplets, label: "Water Saved", value: `${Math.floor(totalEWaste * 2.97).toLocaleString()} L`, color: "text-blue-500" },
+    { icon: Zap, label: "Energy Saved", value: `${Math.floor(totalEWaste * 2.01).toLocaleString()} kWh`, color: "text-yellow-500" },
   ];
 
   const initiatives = [
@@ -80,6 +91,51 @@ const JNTUHUCES = () => {
     },
   ];
 
+  const handleAddWaste = () => {
+    if (!department || !wasteAmount || !wasteType) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    const amount = parseFloat(wasteAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    // Update total e-waste
+    setTotalEWaste(prev => prev + amount);
+
+    // Update department stats
+    setDepartmentStats(prev => {
+      const deptIndex = prev.findIndex(d => d.dept === department);
+      if (deptIndex >= 0) {
+        const updated = [...prev];
+        updated[deptIndex] = { ...updated[deptIndex], collected: updated[deptIndex].collected + amount };
+        return updated;
+      } else {
+        return [...prev, { dept: department, collected: amount }];
+      }
+    });
+
+    // Update monthly data (add to current month - June)
+    setMonthlyData(prev => {
+      const updated = [...prev];
+      updated[updated.length - 1] = {
+        ...updated[updated.length - 1],
+        ewaste: updated[updated.length - 1].ewaste + amount
+      };
+      return updated;
+    });
+
+    toast.success(`Successfully added ${amount}kg of ${wasteType} from ${department}`);
+    
+    // Reset form
+    setDepartment("");
+    setWasteAmount("");
+    setWasteType("");
+  };
+
   const handleDownloadReport = () => {
     toast.success("Downloading JNTUH UCES Waste Management Report...");
   };
@@ -88,7 +144,7 @@ const JNTUHUCES = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Navigation />
       
-      <div className="container mx-auto px-4 page-container py-12">
+      <div className="container mx-auto px-4 pt-24 pb-12">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
@@ -103,6 +159,109 @@ const JNTUHUCES = () => {
             Leading the way in sustainable campus operations and environmental responsibility.
           </p>
         </div>
+
+        {/* Add E-Waste Section */}
+        <Card className="mb-12 shadow-eco animate-scale-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="h-6 w-6 text-primary" />
+              Report E-Waste Collection
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-4 gap-4">
+              <div>
+                <Label htmlFor="department">Department</Label>
+                <Select value={department} onValueChange={setDepartment}>
+                  <SelectTrigger id="department">
+                    <SelectValue placeholder="Select Department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="CSE">CSE</SelectItem>
+                    <SelectItem value="ECE">ECE</SelectItem>
+                    <SelectItem value="EEE">EEE</SelectItem>
+                    <SelectItem value="Mech">Mechanical</SelectItem>
+                    <SelectItem value="Civil">Civil</SelectItem>
+                    <SelectItem value="Admin">Administration</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="wasteType">Waste Type</Label>
+                <Select value={wasteType} onValueChange={setWasteType}>
+                  <SelectTrigger id="wasteType">
+                    <SelectValue placeholder="Select Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="E-Waste">E-Waste</SelectItem>
+                    <SelectItem value="Plastic">Plastic</SelectItem>
+                    <SelectItem value="Paper">Paper</SelectItem>
+                    <SelectItem value="Organic">Organic</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="amount">Amount (kg)</Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  placeholder="Enter weight"
+                  value={wasteAmount}
+                  onChange={(e) => setWasteAmount(e.target.value)}
+                />
+              </div>
+              <div className="flex items-end">
+                <Button onClick={handleAddWaste} className="w-full gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add Entry
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Voice Assistant Section */}
+        <Card className="mb-12 shadow-eco animate-scale-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mic className="h-6 w-6 text-primary" />
+              EcoAI Voice Assistant
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              {!showVoiceAgent ? (
+                <div>
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center animate-pulse">
+                    <Mic className="h-10 w-10 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Voice-Activated E-Waste Assistant</h3>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Get instant answers about campus waste management, recycling guidelines, and sustainability initiatives
+                  </p>
+                  <Button onClick={() => setShowVoiceAgent(true)} size="lg" className="gap-2">
+                    <Mic className="h-5 w-5" />
+                    Start Voice Assistant
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground mb-4">Please add your ElevenLabs agent ID in the code to enable voice chat</p>
+                  {/* Uncomment and add your agent ID to enable:
+                  <Conversation
+                    agentId="YOUR_AGENT_ID_HERE"
+                    onConnect={() => console.log("Voice assistant connected")}
+                    onDisconnect={() => console.log("Voice assistant disconnected")}
+                  />
+                  */}
+                  <Button variant="outline" onClick={() => setShowVoiceAgent(false)}>
+                    Close Assistant
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Impact Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -133,7 +292,7 @@ const JNTUHUCES = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={monthlyWasteData}>
+                <AreaChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -188,7 +347,7 @@ const JNTUHUCES = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={departmentData}>
+                <BarChart data={departmentStats}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="dept" />
                   <YAxis />

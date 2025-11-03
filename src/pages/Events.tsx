@@ -81,7 +81,7 @@ const Events = () => {
   return (
     <div className="min-h-screen bg-gradient-card">
       <Navigation />
-      <div className="page-container pt-12 pb-16">
+      <div className="page-container pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12 animate-fade-in">
