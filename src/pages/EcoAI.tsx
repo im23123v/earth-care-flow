@@ -1,18 +1,12 @@
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bot, MessageSquare, Mic, ExternalLink, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { Bot, MessageSquare, ExternalLink, Sparkles } from "lucide-react";
+import VoiceAgent from "@/components/VoiceAgent";
 
 const EcoAI = () => {
   const handleOpenChat = () => {
     window.open("https://ecoguide-3d8121.zapier.app/", "_blank");
-  };
-
-  const handleOpenVoice = () => {
-    toast.info("Voice Assistant opening in new window...");
-    // Open voice assistant page or modal
-    window.open("https://elevenlabs.io/convai", "_blank");
   };
 
   return (
@@ -79,46 +73,7 @@ const EcoAI = () => {
             </Card>
 
             {/* Voice Assistant */}
-            <Card className="hover:shadow-glow transition-all hover:scale-[1.02] duration-300">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <div className="p-3 rounded-lg bg-purple-500/20 animate-pulse">
-                    <Mic className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div>
-                    <CardTitle>Voice Assistant</CardTitle>
-                    <p className="text-xs text-muted-foreground mt-1">Powered by ElevenLabs</p>
-                  </div>
-                </div>
-                <CardDescription className="mt-4">
-                  Talk to our AI assistant for hands-free recycling guidance, voice-based queries, and conversational support
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 p-8 rounded-lg border-2 border-purple-500/20">
-                  <div className="text-center space-y-4">
-                    <div className="w-20 h-20 mx-auto rounded-full bg-purple-500/20 flex items-center justify-center animate-pulse">
-                      <Mic className="h-10 w-10 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg mb-2">Voice-Activated Assistant</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Speak naturally and get voice responses
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <Button onClick={handleOpenVoice} className="w-full gap-2 h-12" size="lg" variant="secondary">
-                  <Mic className="h-5 w-5" />
-                  Open Voice Assistant
-                  <ExternalLink className="h-4 w-4 ml-auto" />
-                </Button>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Sparkles className="h-4 w-4" />
-                  <span>Natural language • Voice recognition</span>
-                </div>
-              </CardContent>
-            </Card>
+            <VoiceAgent />
           </div>
 
           {/* Info Section */}
