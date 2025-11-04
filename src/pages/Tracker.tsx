@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Package, Search, CheckCircle2, Clock, Truck, MapPin } from "lucide-react";
+import { Package, Search, CheckCircle2, Clock, Truck, MapPin, Camera, QrCode } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Html5Qrcode } from "html5-qrcode";
+import { toast } from "sonner";
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const mockTracking = {
   "PU-2024-001": {
@@ -34,14 +37,114 @@ const mockTracking = {
   }
 };
 
+const mockDeviceData = {
+  "LAPTOP-12345": {
+    name: "Dell XPS 15",
+    type: "Laptop",
+    manufacturer: "Dell",
+    model: "XPS 15 9570",
+    purchaseDate: "2019-03-15",
+    expectedLifespan: 5,
+    currentAge: 5.8,
+    condition: "Fair",
+    recyclability: 85,
+    components: {
+      battery: { health: 45, recyclable: true },
+      screen: { health: 80, recyclable: true },
+      motherboard: { health: 70, recyclable: true },
+      storage: { health: 90, recyclable: true }
+    },
+    carbonFootprint: 320,
+    recoveryValue: "$145"
+  },
+  "PHONE-67890": {
+    name: "iPhone 11",
+    type: "Smartphone",
+    manufacturer: "Apple",
+    model: "iPhone 11",
+    purchaseDate: "2020-09-20",
+    expectedLifespan: 4,
+    currentAge: 4.3,
+    condition: "Good",
+    recyclability: 75,
+    components: {
+      battery: { health: 60, recyclable: true },
+      screen: { health: 85, recyclable: true },
+      motherboard: { health: 80, recyclable: true },
+      camera: { health: 90, recyclable: true }
+    },
+    carbonFootprint: 80,
+    recoveryValue: "$95"
+  }
+};
+
 const Tracker = () => {
   const [trackingId, setTrackingId] = useState("");
   const [trackingInfo, setTrackingInfo] = useState<any>(null);
+  const [showScanner, setShowScanner] = useState(false);
+  const [deviceData, setDeviceData] = useState<any>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const videoRef = useRef<HTMLDivElement>(null);
 
   const handleTrack = () => {
     const info = mockTracking[trackingId as keyof typeof mockTracking];
     setTrackingInfo(info || null);
   };
+
+  const startScanner = async () => {
+    try {
+      setShowScanner(true);
+      setDeviceData(null);
+      
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      scannerRef.current = html5QrCode;
+
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        (decodedText) => {
+          console.log("Scanned:", decodedText);
+          handleScanSuccess(decodedText);
+          stopScanner();
+        },
+        (errorMessage) => {
+          // Ignore scan errors
+        }
+      );
+    } catch (error) {
+      console.error("Scanner error:", error);
+      toast.error("Failed to start camera. Please check permissions.");
+      setShowScanner(false);
+    }
+  };
+
+  const stopScanner = () => {
+    if (scannerRef.current) {
+      scannerRef.current.stop().then(() => {
+        scannerRef.current?.clear();
+        setShowScanner(false);
+      }).catch(console.error);
+    }
+  };
+
+  const handleScanSuccess = (scannedData: string) => {
+    const device = mockDeviceData[scannedData as keyof typeof mockDeviceData];
+    if (device) {
+      setDeviceData(device);
+      toast.success("Device found!");
+    } else {
+      toast.error("Device not found in database");
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopScanner();
+    };
+  }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -60,28 +163,42 @@ const Tracker = () => {
     }
   };
 
+  const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
+
+  const componentHealthData = deviceData ? Object.entries(deviceData.components).map(([name, data]: any) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    health: data.health
+  })) : [];
+
+  const lifespanData = deviceData ? [
+    { name: 'Expected', value: deviceData.expectedLifespan },
+    { name: 'Current Age', value: deviceData.currentAge },
+    { name: 'Remaining', value: Math.max(0, deviceData.expectedLifespan - deviceData.currentAge) }
+  ] : [];
+
   return (
     <div className="min-h-screen bg-gradient-card">
       <Navigation />
       <div className="page-container pt-24 pb-16">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12 animate-fade-in">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                 <Package className="h-8 w-8 text-primary" />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-hero bg-clip-text text-transparent">
-                Track Your Pickup
+                Track Your Pickup & Scan Devices
               </h1>
               <p className="text-lg text-muted-foreground">
-                Enter your tracking ID to see the status of your e-waste pickup
+                Track your e-waste pickup or scan device QR/barcode for detailed statistics
               </p>
             </div>
 
+            {/* Tracking Section */}
             <Card className="mb-8 shadow-card">
               <CardHeader>
-                <CardTitle>Enter Tracking ID</CardTitle>
-                <CardDescription>Your tracking ID was sent via email after scheduling</CardDescription>
+                <CardTitle>Track Your Pickup</CardTitle>
+                <CardDescription>Enter your tracking ID to see the status of your e-waste pickup</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex gap-4">
@@ -156,7 +273,7 @@ const Tracker = () => {
             )}
 
             {trackingId && !trackingInfo && trackingId.length > 0 && (
-              <Card className="shadow-card border-destructive/50">
+              <Card className="shadow-card border-destructive/50 mb-8">
                 <CardContent className="pt-6">
                   <p className="text-center text-muted-foreground">
                     No tracking information found for ID: <span className="font-mono">{trackingId}</span>
@@ -164,6 +281,178 @@ const Tracker = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Device Scanner Section */}
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <QrCode className="h-5 w-5" />
+                  Scan Device QR/Barcode
+                </CardTitle>
+                <CardDescription>
+                  Scan your device's QR code or barcode to view detailed statistics, lifespan, and recycling information
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!showScanner && !deviceData && (
+                  <Button onClick={startScanner} className="w-full gap-2" size="lg">
+                    <Camera className="h-5 w-5" />
+                    Start Camera Scanner
+                  </Button>
+                )}
+
+                {showScanner && (
+                  <div className="space-y-4">
+                    <div id="qr-reader" ref={videoRef} className="rounded-lg overflow-hidden"></div>
+                    <Button onClick={stopScanner} variant="outline" className="w-full">
+                      Stop Scanner
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Try scanning: LAPTOP-12345 or PHONE-67890
+                    </p>
+                  </div>
+                )}
+
+                {deviceData && (
+                  <div className="space-y-6 animate-fade-in">
+                    {/* Device Info */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                        <h3 className="font-semibold text-lg mb-2">{deviceData.name}</h3>
+                        <div className="space-y-1 text-sm">
+                          <p><span className="text-muted-foreground">Type:</span> {deviceData.type}</p>
+                          <p><span className="text-muted-foreground">Manufacturer:</span> {deviceData.manufacturer}</p>
+                          <p><span className="text-muted-foreground">Model:</span> {deviceData.model}</p>
+                          <p><span className="text-muted-foreground">Purchase Date:</span> {deviceData.purchaseDate}</p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-lg bg-gradient-to-br from-secondary/10 to-secondary/5 border border-secondary/20">
+                        <h3 className="font-semibold text-lg mb-2">Status Overview</h3>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Condition:</span>
+                            <Badge>{deviceData.condition}</Badge>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Recyclability:</span>
+                            <span className="font-semibold">{deviceData.recyclability}%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">Recovery Value:</span>
+                            <span className="font-semibold text-primary">{deviceData.recoveryValue}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Lifespan Chart */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Device Lifespan Analysis</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={250}>
+                          <BarChart data={lifespanData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                            <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
+                            <YAxis stroke="hsl(var(--foreground))" label={{ value: 'Years', angle: -90, position: 'insideLeft' }} />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: 'hsl(var(--background))', 
+                                border: '1px solid hsl(var(--border))',
+                                borderRadius: '8px'
+                              }} 
+                            />
+                            <Bar dataKey="value" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                        <div className="mt-4 p-3 rounded-lg bg-muted/50">
+                          <p className="text-sm">
+                            <span className="font-semibold">Age:</span> {deviceData.currentAge.toFixed(1)} years 
+                            <span className="mx-2">•</span>
+                            <span className="font-semibold">Expected Lifespan:</span> {deviceData.expectedLifespan} years
+                            <span className="mx-2">•</span>
+                            <span className="font-semibold">Carbon Footprint:</span> {deviceData.carbonFootprint}kg CO₂
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Component Health */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Component Health Analysis</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart data={componentHealthData} layout="vertical">
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                            <XAxis type="number" domain={[0, 100]} stroke="hsl(var(--foreground))" />
+                            <YAxis dataKey="name" type="category" stroke="hsl(var(--foreground))" width={100} />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: 'hsl(var(--background))', 
+                                border: '1px solid hsl(var(--border))',
+                                borderRadius: '8px'
+                              }} 
+                            />
+                            <Bar dataKey="health" fill="hsl(var(--accent))" radius={[0, 8, 8, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+
+                    {/* Recyclability Breakdown */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Recyclability Breakdown</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <ResponsiveContainer width="100%" height={200}>
+                            <PieChart>
+                              <Pie
+                                data={componentHealthData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="health"
+                              >
+                                {componentHealthData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip />
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <div className="space-y-3">
+                            {Object.entries(deviceData.components).map(([name, data]: any) => (
+                              <div key={name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                                <span className="text-sm font-medium capitalize">{name}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-muted-foreground">{data.health}% Health</span>
+                                  {data.recyclable && (
+                                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Button onClick={() => setDeviceData(null)} variant="outline" className="w-full">
+                      Scan Another Device
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

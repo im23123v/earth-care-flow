@@ -15,23 +15,22 @@ const Navigation = () => {
   // Primary navigation items (visible in main menu)
   const primaryNavItems = [
     { to: "/jntuh-uces", label: "JNTUH UCES", icon: Building2 },
-    { to: "/", label: "Home", icon: Leaf },
+    { to: "/events", label: "Events", icon: Users },
+    { to: "/ecoai", label: "EcoAI", icon: Bot },
     { to: "/calculator", label: "Calculator", icon: Calculator },
     { to: "/learn", label: "Learn", icon: BookOpen },
     { to: "/pickup", label: "Pickup", icon: Calendar },
-    { to: "/impact", label: "Impact", icon: TrendingUp },
     { to: "/tracker", label: "Tracker", icon: Package },
     { to: "/dropoff", label: "Dropoff", icon: MapPin },
   ];
 
   // Secondary navigation items (under "More" dropdown)
   const secondaryNavItems = [
-    { to: "/events", label: "Events", icon: Users },
+    { to: "/impact", label: "Impact", icon: TrendingUp },
     { to: "/rewards", label: "Rewards", icon: Award },
     { to: "/security", label: "Security", icon: Shield },
     { to: "/transparency", label: "Transparency", icon: FileText },
     { to: "/pledge", label: "Pledge", icon: MessageSquare },
-    { to: "/ecoai", label: "EcoAI", icon: Bot },
   ];
 
   const isActive = (path: string) => location.pathname === path;

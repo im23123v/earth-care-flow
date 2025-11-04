@@ -1,13 +1,26 @@
 import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bot, MessageSquare, ExternalLink, Sparkles } from "lucide-react";
-import VoiceAgent from "@/components/VoiceAgent";
+import { Bot, MessageSquare, ExternalLink, Sparkles, Mic } from "lucide-react";
+import { useEffect } from "react";
 
 const EcoAI = () => {
   const handleOpenChat = () => {
     window.open("https://ecoguide-3d8121.zapier.app/", "_blank");
   };
+
+  useEffect(() => {
+    // Load ElevenLabs ConvAI widget script
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+    script.async = true;
+    script.type = 'text/javascript';
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
@@ -73,7 +86,45 @@ const EcoAI = () => {
             </Card>
 
             {/* Voice Assistant */}
-            <VoiceAgent />
+            <Card className="hover:shadow-glow transition-all hover:scale-[1.02] duration-300">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-purple-500/20 animate-pulse">
+                    <Mic className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <CardTitle>Voice Assistant</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">Talk naturally with AI</p>
+                  </div>
+                </div>
+                <CardDescription className="mt-4">
+                  Have a natural conversation with our AI assistant using your voice
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 p-8 rounded-lg border-2 border-purple-500/20">
+                  <div className="text-center space-y-4">
+                    <div className="w-20 h-20 mx-auto rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <Mic className="h-10 w-10 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">Voice-Powered AI</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Click the microphone button below to start talking
+                      </p>
+                    </div>
+                    {/* ElevenLabs ConvAI Widget */}
+                    <div className="flex justify-center">
+                      <elevenlabs-convai agent-id="agent_0501k8cmq520eb4r8f0st7hame07"></elevenlabs-convai>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Natural voice interaction • Real-time responses</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Info Section */}
