@@ -55,7 +55,32 @@ const mockDeviceData = {
       storage: { health: 90, recyclable: true }
     },
     carbonFootprint: 320,
-    recoveryValue: "$145"
+    recoveryValue: "$145",
+    materials: {
+      aluminum: 45,
+      plastic: 25,
+      copper: 15,
+      lithium: 8,
+      glass: 5,
+      rare_earth: 2
+    },
+    recyclingProcess: [
+      { step: "Data Wiping", description: "Secure data destruction following DOD standards" },
+      { step: "Disassembly", description: "Manual separation of components" },
+      { step: "Battery Removal", description: "Safe lithium battery extraction and processing" },
+      { step: "Material Sorting", description: "Separation of metals, plastics, and glass" },
+      { step: "Processing", description: "Shredding and material recovery" }
+    ],
+    dropoffLocations: [
+      { name: "EcoTech Recycling Center", address: "123 Green Street, EcoCity", distance: "2.5 km", hours: "Mon-Sat 9AM-6PM" },
+      { name: "City E-Waste Hub", address: "456 Sustainability Ave, GreenTown", distance: "5.1 km", hours: "Mon-Fri 8AM-5PM" }
+    ],
+    environmentalImpact: {
+      co2Saved: 280,
+      energySaved: 450,
+      waterSaved: 1200,
+      landfillDiverted: 3.5
+    }
   },
   "PHONE-67890": {
     name: "iPhone 11",
@@ -74,7 +99,32 @@ const mockDeviceData = {
       camera: { health: 90, recyclable: true }
     },
     carbonFootprint: 80,
-    recoveryValue: "$95"
+    recoveryValue: "$95",
+    materials: {
+      aluminum: 35,
+      glass: 30,
+      plastic: 20,
+      copper: 10,
+      lithium: 3,
+      rare_earth: 2
+    },
+    recyclingProcess: [
+      { step: "Data Wiping", description: "Complete factory reset and data erasure" },
+      { step: "Battery Extraction", description: "Safe removal of lithium-ion battery" },
+      { step: "Screen Separation", description: "OLED display removal and processing" },
+      { step: "Component Recovery", description: "Circuit board and camera module extraction" },
+      { step: "Material Processing", description: "Metal and rare earth recovery" }
+    ],
+    dropoffLocations: [
+      { name: "Mobile Recycle Point", address: "789 Tech Plaza, Digital District", distance: "1.8 km", hours: "Daily 10AM-8PM" },
+      { name: "Green Phone Exchange", address: "321 Eco Boulevard, SmartCity", distance: "3.2 km", hours: "Mon-Sat 9AM-7PM" }
+    ],
+    environmentalImpact: {
+      co2Saved: 65,
+      energySaved: 120,
+      waterSaved: 340,
+      landfillDiverted: 0.8
+    }
   }
 };
 
@@ -174,6 +224,18 @@ const Tracker = () => {
     { name: 'Expected', value: deviceData.expectedLifespan },
     { name: 'Current Age', value: deviceData.currentAge },
     { name: 'Remaining', value: Math.max(0, deviceData.expectedLifespan - deviceData.currentAge) }
+  ] : [];
+
+  const materialData = deviceData ? Object.entries(deviceData.materials).map(([name, value]: any) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
+    value: value
+  })) : [];
+
+  const impactData = deviceData ? [
+    { name: 'CO₂ Saved', value: deviceData.environmentalImpact.co2Saved, unit: 'kg' },
+    { name: 'Energy Saved', value: deviceData.environmentalImpact.energySaved, unit: 'kWh' },
+    { name: 'Water Saved', value: deviceData.environmentalImpact.waterSaved, unit: 'L' },
+    { name: 'Landfill Diverted', value: deviceData.environmentalImpact.landfillDiverted, unit: 'kg' }
   ] : [];
 
   return (
@@ -313,7 +375,7 @@ const Tracker = () => {
                   </div>
                 )}
 
-                {deviceData && (
+{deviceData && (
                   <div className="space-y-6 animate-fade-in">
                     {/* Device Info */}
                     <div className="grid md:grid-cols-2 gap-4">
@@ -345,6 +407,47 @@ const Tracker = () => {
                         </div>
                       </div>
                     </div>
+
+                    {/* Material Composition */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Material Composition</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <ResponsiveContainer width="100%" height={250}>
+                            <PieChart>
+                              <Pie
+                                data={materialData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={({ name, value }) => `${name}: ${value}%`}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                              >
+                                {materialData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip />
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <div className="space-y-2">
+                            {materialData.map((material, index) => (
+                              <div key={material.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                                  <span className="text-sm font-medium">{material.name}</span>
+                                </div>
+                                <span className="text-sm font-semibold">{material.value}%</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
 
                     {/* Lifespan Chart */}
                     <Card>
@@ -403,45 +506,94 @@ const Tracker = () => {
                       </CardContent>
                     </Card>
 
-                    {/* Recyclability Breakdown */}
+                    {/* Environmental Impact */}
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Recyclability Breakdown</CardTitle>
+                        <CardTitle className="text-lg">Environmental Impact of Recycling</CardTitle>
+                        <CardDescription>Estimated savings by recycling this device properly</CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <ResponsiveContainer width="100%" height={200}>
-                            <PieChart>
-                              <Pie
-                                data={componentHealthData}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                                outerRadius={80}
-                                fill="#8884d8"
-                                dataKey="health"
-                              >
-                                {componentHealthData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                              </Pie>
-                              <Tooltip />
-                            </PieChart>
-                          </ResponsiveContainer>
-                          <div className="space-y-3">
-                            {Object.entries(deviceData.components).map(([name, data]: any) => (
-                              <div key={name} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
-                                <span className="text-sm font-medium capitalize">{name}</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm text-muted-foreground">{data.health}% Health</span>
-                                  {data.recyclable && (
-                                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                                  )}
+                        <ResponsiveContainer width="100%" height={250}>
+                          <BarChart data={impactData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                            <XAxis dataKey="name" stroke="hsl(var(--foreground))" />
+                            <YAxis stroke="hsl(var(--foreground))" />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: 'hsl(var(--background))', 
+                                border: '1px solid hsl(var(--border))',
+                                borderRadius: '8px'
+                              }}
+                              formatter={(value: any, name: any, props: any) => [`${value} ${props.payload.unit}`, name]}
+                            />
+                            <Bar dataKey="value" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                          {impactData.map((item) => (
+                            <div key={item.name} className="p-3 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                              <p className="text-xs text-muted-foreground mb-1">{item.name}</p>
+                              <p className="text-lg font-bold text-primary">{item.value} {item.unit}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Recycling Process */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Recycling Process</CardTitle>
+                        <CardDescription>How this device will be recycled</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {deviceData.recyclingProcess.map((process: any, index: number) => (
+                            <div key={index} className="flex gap-4 items-start">
+                              <div className="flex flex-col items-center">
+                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                                  {index + 1}
                                 </div>
+                                {index < deviceData.recyclingProcess.length - 1 && (
+                                  <div className="w-0.5 h-12 bg-border mt-2" />
+                                )}
                               </div>
-                            ))}
-                          </div>
+                              <div className="flex-1 pb-4">
+                                <h4 className="font-semibold mb-1">{process.step}</h4>
+                                <p className="text-sm text-muted-foreground">{process.description}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Drop-off Locations */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Recommended Drop-off Locations</CardTitle>
+                        <CardDescription>Nearest certified e-waste recycling centers</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {deviceData.dropoffLocations.map((location: any, index: number) => (
+                            <div key={index} className="p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex items-start gap-3">
+                                  <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                                  <div>
+                                    <h4 className="font-semibold">{location.name}</h4>
+                                    <p className="text-sm text-muted-foreground">{location.address}</p>
+                                  </div>
+                                </div>
+                                <Badge variant="outline">{location.distance}</Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground ml-8">
+                                <Clock className="h-4 w-4 inline mr-1" />
+                                {location.hours}
+                              </p>
+                            </div>
+                          ))}
                         </div>
                       </CardContent>
                     </Card>
