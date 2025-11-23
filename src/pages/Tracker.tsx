@@ -146,28 +146,54 @@ const Tracker = () => {
       setShowScanner(true);
       setDeviceData(null);
       
+      // Wait for DOM to be ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const html5QrCode = new Html5Qrcode("qr-reader");
       scannerRef.current = html5QrCode;
 
-      await html5QrCode.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
-        (decodedText) => {
-          console.log("Scanned:", decodedText);
-          handleScanSuccess(decodedText);
-          stopScanner();
-        },
-        (errorMessage) => {
-          // Ignore scan errors
-        }
-      );
-    } catch (error) {
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+      
+      // Try to get camera devices first
+      const devices = await Html5Qrcode.getCameras();
+      
+      if (devices && devices.length > 0) {
+        // Use back camera if available, otherwise use first camera
+        const backCamera = devices.find(device => 
+          device.label.toLowerCase().includes('back') || 
+          device.label.toLowerCase().includes('rear')
+        );
+        
+        const cameraId = backCamera ? backCamera.id : devices[0].id;
+        
+        await html5QrCode.start(
+          cameraId,
+          config,
+          (decodedText) => {
+            console.log("Scanned:", decodedText);
+            handleScanSuccess(decodedText);
+            stopScanner();
+          },
+          (errorMessage) => {
+            // Ignore scan errors (these happen constantly while scanning)
+          }
+        );
+        
+        toast.success("Camera started successfully!");
+      } else {
+        throw new Error("No cameras found on this device");
+      }
+    } catch (error: any) {
       console.error("Scanner error:", error);
-      toast.error("Failed to start camera. Please check permissions.");
       setShowScanner(false);
+      
+      if (error.name === 'NotAllowedError' || error.message?.includes('Permission')) {
+        toast.error("Camera permission denied. Please allow camera access in your browser settings.");
+      } else if (error.message?.includes('No cameras found')) {
+        toast.error("No camera found on this device.");
+      } else {
+        toast.error("Failed to start camera: " + (error.message || "Unknown error"));
+      }
     }
   };
 
