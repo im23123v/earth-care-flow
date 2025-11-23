@@ -207,13 +207,175 @@ const Tracker = () => {
   };
 
   const handleScanSuccess = (scannedData: string) => {
-    const device = mockDeviceData[scannedData as keyof typeof mockDeviceData];
-    if (device) {
-      setDeviceData(device);
-      toast.success("Device found!");
-    } else {
-      toast.error("Device not found in database");
+    // Check if exact match exists in mock data
+    const exactMatch = mockDeviceData[scannedData as keyof typeof mockDeviceData];
+    
+    if (exactMatch) {
+      setDeviceData(exactMatch);
+      toast.success("Device found in database!");
+      return;
     }
+
+    // Generate device data based on scanned code
+    const generatedDevice = generateDeviceData(scannedData);
+    setDeviceData(generatedDevice);
+    toast.success("Device scanned successfully!");
+  };
+
+  const generateDeviceData = (code: string) => {
+    // Detect device type from code patterns
+    const isPhone = code.toLowerCase().includes('phone') || 
+                    code.toLowerCase().includes('mobile') ||
+                    code.toLowerCase().includes('iphone') ||
+                    code.toLowerCase().includes('samsung') ||
+                    code.includes('IMEI') ||
+                    /^\d{15}$/.test(code); // IMEI is 15 digits
+
+    const isLaptop = code.toLowerCase().includes('laptop') ||
+                     code.toLowerCase().includes('notebook') ||
+                     code.toLowerCase().includes('dell') ||
+                     code.toLowerCase().includes('hp') ||
+                     code.toLowerCase().includes('lenovo');
+
+    const isTablet = code.toLowerCase().includes('tab') ||
+                     code.toLowerCase().includes('ipad');
+
+    const isMonitor = code.toLowerCase().includes('monitor') ||
+                      code.toLowerCase().includes('display') ||
+                      code.toLowerCase().includes('screen');
+
+    // Determine device type
+    let deviceType = "Electronic Device";
+    let deviceName = "Unknown Device";
+    let deviceIcon = "📱";
+    
+    if (isPhone) {
+      deviceType = "Smartphone";
+      deviceName = "Mobile Phone";
+      deviceIcon = "📱";
+    } else if (isLaptop) {
+      deviceType = "Laptop";
+      deviceName = "Laptop Computer";
+      deviceIcon = "💻";
+    } else if (isTablet) {
+      deviceType = "Tablet";
+      deviceName = "Tablet Device";
+      deviceIcon = "📲";
+    } else if (isMonitor) {
+      deviceType = "Monitor";
+      deviceName = "Display Monitor";
+      deviceIcon = "🖥️";
+    }
+
+    // Generate realistic data based on device type
+    const baseData = isPhone ? {
+      expectedLifespan: 4,
+      recyclability: 75,
+      carbonFootprint: 80,
+      recoveryValue: "$85-120",
+      materials: {
+        aluminum: 35,
+        glass: 30,
+        plastic: 20,
+        copper: 10,
+        lithium: 3,
+        rare_earth: 2
+      },
+      components: {
+        battery: { health: Math.floor(Math.random() * 40) + 50, recyclable: true },
+        screen: { health: Math.floor(Math.random() * 30) + 70, recyclable: true },
+        motherboard: { health: Math.floor(Math.random() * 30) + 60, recyclable: true },
+        camera: { health: Math.floor(Math.random() * 20) + 80, recyclable: true }
+      },
+      environmentalImpact: {
+        co2Saved: 65,
+        energySaved: 120,
+        waterSaved: 340,
+        landfillDiverted: 0.8
+      }
+    } : isLaptop ? {
+      expectedLifespan: 5,
+      recyclability: 85,
+      carbonFootprint: 320,
+      recoveryValue: "$120-180",
+      materials: {
+        aluminum: 45,
+        plastic: 25,
+        copper: 15,
+        lithium: 8,
+        glass: 5,
+        rare_earth: 2
+      },
+      components: {
+        battery: { health: Math.floor(Math.random() * 40) + 40, recyclable: true },
+        screen: { health: Math.floor(Math.random() * 30) + 70, recyclable: true },
+        motherboard: { health: Math.floor(Math.random() * 40) + 50, recyclable: true },
+        storage: { health: Math.floor(Math.random() * 20) + 80, recyclable: true }
+      },
+      environmentalImpact: {
+        co2Saved: 280,
+        energySaved: 450,
+        waterSaved: 1200,
+        landfillDiverted: 3.5
+      }
+    } : {
+      expectedLifespan: 4.5,
+      recyclability: 70,
+      carbonFootprint: 150,
+      recoveryValue: "$50-90",
+      materials: {
+        plastic: 40,
+        aluminum: 25,
+        copper: 15,
+        glass: 10,
+        lithium: 5,
+        rare_earth: 5
+      },
+      components: {
+        circuit_board: { health: Math.floor(Math.random() * 40) + 50, recyclable: true },
+        casing: { health: Math.floor(Math.random() * 30) + 70, recyclable: true },
+        battery: { health: Math.floor(Math.random() * 40) + 40, recyclable: true },
+        display: { health: Math.floor(Math.random() * 30) + 60, recyclable: true }
+      },
+      environmentalImpact: {
+        co2Saved: 120,
+        energySaved: 250,
+        waterSaved: 600,
+        landfillDiverted: 1.8
+      }
+    };
+
+    const currentAge = Math.random() * baseData.expectedLifespan + 1;
+
+    return {
+      name: deviceName,
+      type: deviceType,
+      manufacturer: "Various",
+      model: code.substring(0, 20),
+      purchaseDate: new Date(Date.now() - currentAge * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      expectedLifespan: baseData.expectedLifespan,
+      currentAge: parseFloat(currentAge.toFixed(1)),
+      condition: currentAge < baseData.expectedLifespan * 0.5 ? "Good" : currentAge < baseData.expectedLifespan * 0.8 ? "Fair" : "Poor",
+      recyclability: baseData.recyclability,
+      components: baseData.components,
+      carbonFootprint: baseData.carbonFootprint,
+      recoveryValue: baseData.recoveryValue,
+      materials: baseData.materials,
+      recyclingProcess: [
+        { step: "Data Wiping", description: "Secure data destruction following industry standards" },
+        { step: "Disassembly", description: "Manual separation of components and materials" },
+        { step: "Battery Removal", description: "Safe extraction and processing of batteries" },
+        { step: "Material Sorting", description: "Separation of metals, plastics, and glass" },
+        { step: "Processing", description: "Shredding and material recovery for reuse" }
+      ],
+      dropoffLocations: [
+        { name: "EcoTech Recycling Center", address: "123 Green Street, EcoCity", distance: "2.5 km", hours: "Mon-Sat 9AM-6PM" },
+        { name: "City E-Waste Hub", address: "456 Sustainability Ave, GreenTown", distance: "5.1 km", hours: "Mon-Fri 8AM-5PM" },
+        { name: "Green Electronics Recycling", address: "789 Eco Boulevard, TechCity", distance: "7.3 km", hours: "Daily 10AM-7PM" }
+      ],
+      environmentalImpact: baseData.environmentalImpact,
+      scannedCode: code
+    };
   };
 
   useEffect(() => {
