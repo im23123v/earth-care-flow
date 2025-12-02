@@ -3,12 +3,12 @@ import Navigation from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Package, Search, CheckCircle2, Clock, Truck, MapPin, Camera, QrCode } from "lucide-react";
+import { Package, Search, CheckCircle2, Clock, Truck, MapPin, Camera, QrCode, Award, Loader2, Globe, ExternalLink, Shield, Recycle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-
+import ecoAwardCertificate from "@/assets/eco-award-certificate.png";
 const mockTracking = {
   "PU-2024-001": {
     id: "PU-2024-001",
@@ -128,11 +128,38 @@ const mockDeviceData = {
   }
 };
 
+// Sample certificates data
+const sampleCertificates = [
+  {
+    id: "CERT-2025-001",
+    title: "Eco Award Certificate",
+    recipient: "Vishwanath Karne",
+    award: "E-Waste Saviour",
+    description: "Outstanding contribution and innovation in promoting Sustainable E-Waste Management at the Hack-A-Thon 1.0 2025 National Hackathon",
+    venue: "St. Peter's Engineering College",
+    date: "December 13th, 2025",
+    issuedBy: "Team EcoRecycle",
+    image: ecoAwardCertificate
+  },
+  {
+    id: "CERT-2025-002",
+    title: "Green Champion Certificate",
+    recipient: "EcoRecycle Team",
+    award: "Environmental Excellence",
+    description: "For significant contribution to reducing e-waste and promoting sustainable practices",
+    venue: "National Environment Summit 2025",
+    date: "January 15th, 2025",
+    issuedBy: "Ministry of Environment"
+  }
+];
+
 const Tracker = () => {
   const [trackingId, setTrackingId] = useState("");
   const [trackingInfo, setTrackingInfo] = useState<any>(null);
   const [showScanner, setShowScanner] = useState(false);
   const [deviceData, setDeviceData] = useState<any>(null);
+  const [isLookingUp, setIsLookingUp] = useState(false);
+  const [scannedUrl, setScannedUrl] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const videoRef = useRef<HTMLDivElement>(null);
 
@@ -206,7 +233,7 @@ const Tracker = () => {
     }
   };
 
-  const handleScanSuccess = (scannedData: string) => {
+  const handleScanSuccess = async (scannedData: string) => {
     // Check if exact match exists in mock data
     const exactMatch = mockDeviceData[scannedData as keyof typeof mockDeviceData];
     
@@ -216,10 +243,189 @@ const Tracker = () => {
       return;
     }
 
+    // Check if it's a QR code URL (from qr-code.io or similar)
+    const isUrl = scannedData.startsWith('http') || scannedData.includes('qr-code') || scannedData.includes('qr-codes.io');
+    
+    if (isUrl) {
+      setScannedUrl(scannedData);
+      setIsLookingUp(true);
+      toast.info("QR Code detected! Looking up device online...");
+      
+      // Simulate online lookup with delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Generate device data based on the URL/scanned code with online lookup simulation
+      const generatedDevice = generateDeviceDataFromOnlineLookup(scannedData);
+      setDeviceData(generatedDevice);
+      setIsLookingUp(false);
+      toast.success("Device information retrieved successfully!");
+      return;
+    }
+
     // Generate device data based on scanned code
     const generatedDevice = generateDeviceData(scannedData);
     setDeviceData(generatedDevice);
     toast.success("Device scanned successfully!");
+  };
+
+  const generateDeviceDataFromOnlineLookup = (url: string) => {
+    // Extract code from URL if present
+    const urlParts = url.split('/');
+    const code = urlParts[urlParts.length - 1] || url;
+    
+    // Simulate online lookup results with more detailed data
+    const deviceTypes = ['Smartphone', 'Laptop', 'Tablet', 'Smart Watch', 'Wireless Earbuds', 'Gaming Console'];
+    const manufacturers = ['Samsung', 'Apple', 'Dell', 'HP', 'Lenovo', 'Sony', 'LG', 'Xiaomi', 'OnePlus'];
+    const conditions = ['Excellent', 'Good', 'Fair', 'Poor'];
+    
+    const randomType = deviceTypes[Math.floor(Math.random() * deviceTypes.length)];
+    const randomManufacturer = manufacturers[Math.floor(Math.random() * manufacturers.length)];
+    const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+    
+    const deviceModels: { [key: string]: string[] } = {
+      'Samsung': ['Galaxy S23', 'Galaxy A54', 'Galaxy Tab S9', 'Galaxy Watch 5'],
+      'Apple': ['iPhone 15 Pro', 'iPad Air', 'MacBook Pro M3', 'Apple Watch Series 9'],
+      'Dell': ['XPS 15', 'Inspiron 16', 'Latitude 7430', 'Alienware m18'],
+      'HP': ['Spectre x360', 'Pavilion 15', 'EliteBook 840', 'OMEN 16'],
+      'Lenovo': ['ThinkPad X1 Carbon', 'IdeaPad 5', 'Legion Pro 7', 'Tab P12'],
+      'Sony': ['PlayStation 5', 'WH-1000XM5', 'Xperia 1 V', 'LinkBuds S'],
+      'LG': ['Gram 17', 'UltraGear Monitor', 'V60 ThinQ', 'Tone Free FP8'],
+      'Xiaomi': ['Mi 14', 'Redmi Note 13', 'Pad 6', 'Watch S3'],
+      'OnePlus': ['12 Pro', 'Open', 'Pad', 'Watch 2']
+    };
+    
+    const models = deviceModels[randomManufacturer] || ['Generic Model'];
+    const randomModel = models[Math.floor(Math.random() * models.length)];
+    
+    const baseData = randomType === 'Smartphone' || randomType === 'Smart Watch' || randomType === 'Wireless Earbuds' ? {
+      expectedLifespan: 4,
+      recyclability: 78,
+      carbonFootprint: 85,
+      recoveryValue: "$75-140",
+      materials: {
+        aluminum: 32,
+        glass: 28,
+        plastic: 22,
+        copper: 10,
+        lithium: 5,
+        rare_earth: 3
+      },
+      environmentalImpact: {
+        co2Saved: 72,
+        energySaved: 135,
+        waterSaved: 380,
+        landfillDiverted: 0.9
+      }
+    } : randomType === 'Laptop' || randomType === 'Tablet' ? {
+      expectedLifespan: 5,
+      recyclability: 85,
+      carbonFootprint: 350,
+      recoveryValue: "$130-200",
+      materials: {
+        aluminum: 42,
+        plastic: 28,
+        copper: 14,
+        lithium: 9,
+        glass: 5,
+        rare_earth: 2
+      },
+      environmentalImpact: {
+        co2Saved: 295,
+        energySaved: 480,
+        waterSaved: 1350,
+        landfillDiverted: 3.8
+      }
+    } : {
+      expectedLifespan: 6,
+      recyclability: 72,
+      carbonFootprint: 180,
+      recoveryValue: "$60-120",
+      materials: {
+        plastic: 45,
+        aluminum: 22,
+        copper: 15,
+        glass: 8,
+        lithium: 6,
+        rare_earth: 4
+      },
+      environmentalImpact: {
+        co2Saved: 145,
+        energySaved: 280,
+        waterSaved: 720,
+        landfillDiverted: 2.2
+      }
+    };
+    
+    const currentAge = Math.random() * baseData.expectedLifespan + 0.5;
+    
+    return {
+      name: `${randomManufacturer} ${randomModel}`,
+      type: randomType,
+      manufacturer: randomManufacturer,
+      model: randomModel,
+      serialNumber: `SN-${code.toUpperCase().substring(0, 8)}`,
+      purchaseDate: new Date(Date.now() - currentAge * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      expectedLifespan: baseData.expectedLifespan,
+      currentAge: parseFloat(currentAge.toFixed(1)),
+      condition: randomCondition,
+      recyclability: baseData.recyclability,
+      components: {
+        battery: { health: Math.floor(Math.random() * 40) + 50, recyclable: true },
+        screen: { health: Math.floor(Math.random() * 30) + 65, recyclable: true },
+        motherboard: { health: Math.floor(Math.random() * 35) + 55, recyclable: true },
+        storage: { health: Math.floor(Math.random() * 20) + 75, recyclable: true }
+      },
+      carbonFootprint: baseData.carbonFootprint,
+      recoveryValue: baseData.recoveryValue,
+      materials: baseData.materials,
+      recyclingProcess: [
+        { step: "Device Verification", description: "Verify device identity and ownership through secure database" },
+        { step: "Data Sanitization", description: "Military-grade data wiping (NIST 800-88 compliant)" },
+        { step: "Initial Assessment", description: "Professional evaluation of device condition and value" },
+        { step: "Battery Extraction", description: "Safe removal and specialized lithium battery recycling" },
+        { step: "Component Harvesting", description: "Recovery of reusable components (screens, cameras, chips)" },
+        { step: "Material Separation", description: "Advanced sorting of metals, plastics, and rare earths" },
+        { step: "Certified Processing", description: "R2/e-Stewards certified shredding and smelting" },
+        { step: "Environmental Reporting", description: "Generate certificate of proper disposal and recycling" }
+      ],
+      dropoffLocations: [
+        { name: "EcoTech Recycling Center", address: "123 Green Street, Hyderabad", distance: "2.3 km", hours: "Mon-Sat 9AM-6PM", certified: true },
+        { name: "City E-Waste Hub", address: "456 Sustainability Ave, Secunderabad", distance: "4.8 km", hours: "Mon-Fri 8AM-5PM", certified: true },
+        { name: "Green Electronics Recycling", address: "789 Eco Boulevard, Gachibowli", distance: "6.5 km", hours: "Daily 10AM-7PM", certified: true },
+        { name: "TechRecycle Point", address: "321 Digital Lane, HITEC City", distance: "8.2 km", hours: "Mon-Sat 9AM-8PM", certified: false }
+      ],
+      environmentalImpact: baseData.environmentalImpact,
+      scannedCode: code,
+      scannedUrl: url,
+      onlineLookup: true,
+      category: getDeviceCategory(randomType),
+      hazardousMaterials: getHazardousMaterials(randomType),
+      certifications: ['R2 Certified', 'e-Stewards', 'ISO 14001'],
+      warranty: {
+        status: currentAge < 2 ? 'Active' : 'Expired',
+        expiryDate: new Date(Date.now() - (currentAge - 2) * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      }
+    };
+  };
+
+  const getDeviceCategory = (type: string): string => {
+    const categories: { [key: string]: string } = {
+      'Smartphone': 'Mobile Electronics',
+      'Laptop': 'Computing Equipment',
+      'Tablet': 'Mobile Electronics',
+      'Smart Watch': 'Wearable Technology',
+      'Wireless Earbuds': 'Audio Equipment',
+      'Gaming Console': 'Entertainment Systems'
+    };
+    return categories[type] || 'General Electronics';
+  };
+
+  const getHazardousMaterials = (type: string): string[] => {
+    const base = ['Lithium Battery', 'Lead (solder)'];
+    if (type === 'Smartphone' || type === 'Laptop' || type === 'Tablet') {
+      return [...base, 'Mercury (display)', 'Cadmium', 'Brominated Flame Retardants'];
+    }
+    return base;
   };
 
   const generateDeviceData = (code: string) => {
@@ -544,7 +750,7 @@ const Tracker = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {!showScanner && !deviceData && (
+                {!showScanner && !deviceData && !isLookingUp && (
                   <Button onClick={startScanner} className="w-full gap-2" size="lg">
                     <Camera className="h-5 w-5" />
                     Start Camera Scanner
@@ -558,13 +764,46 @@ const Tracker = () => {
                       Stop Scanner
                     </Button>
                     <p className="text-xs text-muted-foreground text-center">
-                      Try scanning: LAPTOP-12345 or PHONE-67890
+                      Supports QR codes from qr-code.io and device barcodes
                     </p>
+                  </div>
+                )}
+
+                {isLookingUp && (
+                  <div className="text-center py-12 space-y-4 animate-fade-in">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 animate-pulse">
+                      <Globe className="h-8 w-8 text-primary animate-spin" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-lg">Looking up device online...</h3>
+                      <p className="text-sm text-muted-foreground">Fetching device information from QR code</p>
+                      {scannedUrl && (
+                        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                          <ExternalLink className="h-3 w-3" />
+                          <span className="font-mono truncate max-w-xs">{scannedUrl}</span>
+                        </div>
+                      )}
+                    </div>
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
                   </div>
                 )}
 
 {deviceData && (
                   <div className="space-y-6 animate-fade-in">
+                    {/* Online Lookup Badge */}
+                    {deviceData.onlineLookup && (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-accent/10 border border-accent/30">
+                        <Globe className="h-5 w-5 text-accent" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">Device information retrieved via online lookup</p>
+                          {deviceData.scannedUrl && (
+                            <p className="text-xs text-muted-foreground font-mono truncate">{deviceData.scannedUrl}</p>
+                          )}
+                        </div>
+                        <Badge variant="secondary">Online</Badge>
+                      </div>
+                    )}
+
                     {/* Device Info */}
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
@@ -573,7 +812,13 @@ const Tracker = () => {
                           <p><span className="text-muted-foreground">Type:</span> {deviceData.type}</p>
                           <p><span className="text-muted-foreground">Manufacturer:</span> {deviceData.manufacturer}</p>
                           <p><span className="text-muted-foreground">Model:</span> {deviceData.model}</p>
+                          {deviceData.serialNumber && (
+                            <p><span className="text-muted-foreground">Serial:</span> {deviceData.serialNumber}</p>
+                          )}
                           <p><span className="text-muted-foreground">Purchase Date:</span> {deviceData.purchaseDate}</p>
+                          {deviceData.category && (
+                            <p><span className="text-muted-foreground">Category:</span> {deviceData.category}</p>
+                          )}
                         </div>
                       </div>
 
@@ -592,9 +837,62 @@ const Tracker = () => {
                             <span className="text-sm text-muted-foreground">Recovery Value:</span>
                             <span className="font-semibold text-primary">{deviceData.recoveryValue}</span>
                           </div>
+                          {deviceData.warranty && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-muted-foreground">Warranty:</span>
+                              <Badge variant={deviceData.warranty.status === 'Active' ? 'default' : 'outline'}>
+                                {deviceData.warranty.status}
+                              </Badge>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
+
+                    {/* Hazardous Materials Warning */}
+                    {deviceData.hazardousMaterials && (
+                      <Card className="border-destructive/30 bg-destructive/5">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg flex items-center gap-2 text-destructive">
+                            <Shield className="h-5 w-5" />
+                            Hazardous Materials Warning
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            This device contains materials that require special handling during recycling:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {deviceData.hazardousMaterials.map((material: string, index: number) => (
+                              <Badge key={index} variant="outline" className="border-destructive/50 text-destructive">
+                                {material}
+                              </Badge>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Certifications */}
+                    {deviceData.certifications && (
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Recycle className="h-5 w-5 text-primary" />
+                            Recycling Certifications
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex flex-wrap gap-2">
+                            {deviceData.certifications.map((cert: string, index: number) => (
+                              <Badge key={index} className="bg-primary/10 text-primary border-primary/20">
+                                {cert}
+                              </Badge>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
 
                     {/* Material Composition */}
                     <Card>
@@ -786,11 +1084,56 @@ const Tracker = () => {
                       </CardContent>
                     </Card>
 
-                    <Button onClick={() => setDeviceData(null)} variant="outline" className="w-full">
+                    <Button onClick={() => { setDeviceData(null); setScannedUrl(null); }} variant="outline" className="w-full">
                       Scan Another Device
                     </Button>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Certificates Section */}
+            <Card className="mt-8 shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-primary" />
+                  Sample Certificates
+                </CardTitle>
+                <CardDescription>
+                  Recognition certificates for e-waste management contributions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {sampleCertificates.map((cert) => (
+                    <div key={cert.id} className="rounded-lg border bg-card overflow-hidden hover:shadow-lg transition-shadow">
+                      {cert.image && (
+                        <div className="aspect-[4/3] overflow-hidden bg-muted">
+                          <img 
+                            src={cert.image} 
+                            alt={cert.title}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="font-semibold text-lg">{cert.title}</h3>
+                            <p className="text-sm text-muted-foreground">{cert.recipient}</p>
+                          </div>
+                          <Badge className="bg-primary/10 text-primary">{cert.award}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{cert.description}</p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
+                          <span>{cert.venue}</span>
+                          <span>{cert.date}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Issued by: {cert.issuedBy}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
