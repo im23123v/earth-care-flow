@@ -56,6 +56,14 @@ const Rewards = () => {
               </div>
               <Progress value={68} className="h-3" />
             </div>
+            <div className="text-center mt-6">
+              <a href="https://ecocertificates.lovable.app" target="_blank" rel="noopener noreferrer">
+                <Button className="gap-2">
+                  <Award className="h-5 w-5" />
+                  View EcoCertificates
+                </Button>
+              </a>
+            </div>
           </Card>
 
           {/* Badges */}
