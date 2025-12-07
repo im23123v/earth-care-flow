@@ -111,3 +111,13 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-eco);
   }
 }
+
+/* Truck tracking animation */
+@keyframes truck-move {
+  0%, 100% {
+    transform: translateY(-50%) translateX(0);
+  }
+  50% {
+    transform: translateY(-50%) translateX(10px);
+  }
+}

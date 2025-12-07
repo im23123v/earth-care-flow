@@ -677,6 +677,98 @@ const Tracker = () => {
 
             {trackingInfo && (
               <div className="space-y-6 animate-scale-in">
+                {/* Real-time Truck Tracking Tile */}
+                <Card className="shadow-card border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5 overflow-hidden">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Truck className="h-6 w-6 text-primary" />
+                          </div>
+                          <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse border-2 border-background" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-xl">Live Truck Tracking</CardTitle>
+                          <CardDescription>Tracking ID: {trackingInfo.id}</CardDescription>
+                        </div>
+                      </div>
+                      <Badge variant={getStatusColor(trackingInfo.status)} className="text-xs">
+                        {trackingInfo.status === 'in-transit' ? '🚛 EN ROUTE' : trackingInfo.status.replace("-", " ").toUpperCase()}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Mini Map Preview */}
+                    <div className="relative h-40 rounded-lg bg-muted overflow-hidden border border-border/50">
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-100/50 to-blue-100/50 dark:from-green-900/20 dark:to-blue-900/20">
+                        {/* Animated road pattern */}
+                        <div className="absolute inset-0 opacity-20">
+                          <div className="absolute top-1/2 left-0 right-0 h-2 bg-muted-foreground/30 transform -translate-y-1/2" />
+                          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-yellow-500/50 transform -translate-y-1/2 animate-pulse" style={{ animationDuration: '1.5s' }} />
+                        </div>
+                        {/* Animated truck icon */}
+                        <div 
+                          className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-1000"
+                          style={{ 
+                            left: trackingInfo.status === 'completed' ? '85%' : 
+                                  trackingInfo.status === 'in-transit' ? '55%' : '25%',
+                            animation: trackingInfo.status === 'in-transit' ? 'truck-move 3s ease-in-out infinite' : 'none'
+                          }}
+                        >
+                          <div className="bg-primary text-primary-foreground p-2 rounded-lg shadow-lg">
+                            <Truck className="h-5 w-5" />
+                          </div>
+                        </div>
+                        {/* Start point */}
+                        <div className="absolute top-1/2 left-4 transform -translate-y-1/2">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full" />
+                          <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-[10px] text-muted-foreground whitespace-nowrap">Start</span>
+                        </div>
+                        {/* End point */}
+                        <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full" />
+                          <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-[10px] text-muted-foreground whitespace-nowrap">Destination</span>
+                        </div>
+                      </div>
+                      {/* ETA overlay */}
+                      <div className="absolute top-2 right-2 bg-background/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium">
+                        ETA: {trackingInfo.status === 'completed' ? 'Arrived' : trackingInfo.status === 'in-transit' ? '~15 mins' : 'Pending'}
+                      </div>
+                    </div>
+
+                    {/* Truck Info Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <p className="text-xs text-muted-foreground">Driver</p>
+                        <p className="font-medium text-sm">Ravi Kumar</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <p className="text-xs text-muted-foreground">Vehicle</p>
+                        <p className="font-medium text-sm">TS 09 AB 1234</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <p className="text-xs text-muted-foreground">Distance</p>
+                        <p className="font-medium text-sm">{trackingInfo.status === 'completed' ? '0 km' : '4.2 km'}</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <p className="text-xs text-muted-foreground">Items</p>
+                        <p className="font-medium text-sm">{trackingInfo.device.split(',').length} devices</p>
+                      </div>
+                    </div>
+
+                    {/* Detailed Tracking Button */}
+                    <Button 
+                      className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground"
+                      onClick={() => window.open('https://ecorecycle-tracker.lovable.app', '_blank')}
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      View Detailed Tracking on EcoRecycle Tracker
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Original Pickup Info Card */}
                 <Card className="shadow-card">
                   <CardHeader>
                     <div className="flex items-start justify-between">
