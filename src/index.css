@@ -113,6 +113,11 @@ All colors MUST be HSL.
 }
 
 /* Truck tracking animation */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 @keyframes truck-move {
   0%, 100% {
     transform: translateY(-50%) translateX(0);
