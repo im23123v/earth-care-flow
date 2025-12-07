@@ -8,7 +8,7 @@ const Hero = () => {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-4xl text-center text-primary-foreground animate-fade-in">
           <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Telangana's E-Waste
+            Telangana's Sustainable Waste
             <span className="block mt-2">Revolution Starts Here</span>
           </h1>
           <p className="mb-8 text-lg md:text-xl opacity-95 max-w-2xl mx-auto">
