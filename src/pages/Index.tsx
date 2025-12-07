@@ -13,9 +13,9 @@ import HackathonBadge from "@/components/home/HackathonBadge";
 const Index = () => {
   return (
     <div className="min-h-screen">
-      <HackathonBadge />
       <Navigation />
       <div className="pt-20">
+        <HackathonBadge />
         <Hero />
         <EcoCounters />
         <ModernFeatures />
