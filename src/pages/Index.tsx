@@ -6,16 +6,22 @@ import Mission from "@/components/home/Mission";
 import Partners from "@/components/home/Partners";
 import GovtInitiatives from "@/components/home/GovtInitiatives";
 import ModernFeatures from "@/components/home/ModernFeatures";
+import Testimonials from "@/components/home/Testimonials";
+import InternationalPartners from "@/components/home/InternationalPartners";
+import HackathonBadge from "@/components/home/HackathonBadge";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
+      <HackathonBadge />
       <Navigation />
       <div className="pt-20">
         <Hero />
         <EcoCounters />
         <ModernFeatures />
         <FeatureTiles />
+        <Testimonials />
+        <InternationalPartners />
         <GovtInitiatives />
         <Mission />
         <Partners />
