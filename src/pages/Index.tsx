@@ -8,14 +8,13 @@ import GovtInitiatives from "@/components/home/GovtInitiatives";
 import ModernFeatures from "@/components/home/ModernFeatures";
 import Testimonials from "@/components/home/Testimonials";
 import InternationalPartners from "@/components/home/InternationalPartners";
-import HackathonBadge from "@/components/home/HackathonBadge";
+import HackathonSection from "@/components/home/HackathonSection";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
       <div className="pt-20">
-        <HackathonBadge />
         <Hero />
         <EcoCounters />
         <ModernFeatures />
@@ -24,6 +23,7 @@ const Index = () => {
         <InternationalPartners />
         <GovtInitiatives />
         <Mission />
+        <HackathonSection />
         <Partners />
       </div>
       
