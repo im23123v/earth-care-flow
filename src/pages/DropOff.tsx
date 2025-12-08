@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Search, Phone, Clock, Navigation as NavigationIcon, Building2 } from "lucide-react";
-import collectionMapImage from "@/assets/collection-centers-map.jpg";
+import { MapPin, Search, Phone, Clock, Navigation as NavigationIcon, Building2, X, ExternalLink } from "lucide-react";
 
 // Telangana e-waste drop-off centers
 const telanganaDropOffCenters = [
@@ -19,17 +18,107 @@ const telanganaDropOffCenters = [
   { id: 8, name: "Recycling Center - Mahbubnagar", lat: 16.733610, lng: 77.984497, address: "Mahbubnagar", phone: "+91 8542 234567", hours: "Tue-Sat: 10AM-6PM", district: "Mahbubnagar" },
 ];
 
+interface SelectedCenter {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  address: string;
+}
+
 const DropOff = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState<string>("all");
+  const [isMapFullscreen, setIsMapFullscreen] = useState(false);
+  const [selectedCenter, setSelectedCenter] = useState<SelectedCenter | null>(null);
 
   const filteredCenters = selectedDistrict === "all" 
     ? telanganaDropOffCenters 
     : telanganaDropOffCenters.filter(c => c.district === selectedDistrict);
 
+  const handleGetDirections = (center: typeof telanganaDropOffCenters[0]) => {
+    setSelectedCenter({
+      id: center.id,
+      name: center.name,
+      lat: center.lat,
+      lng: center.lng,
+      address: center.address,
+    });
+    setIsMapFullscreen(true);
+  };
+
+  const closeFullscreenMap = () => {
+    setIsMapFullscreen(false);
+    setSelectedCenter(null);
+  };
+
+  const openGoogleMaps = () => {
+    if (selectedCenter) {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedCenter.lat},${selectedCenter.lng}&destination_place_id=${encodeURIComponent(selectedCenter.name)}`;
+      window.open(url, '_blank');
+    }
+  };
+
+  const getMapEmbedUrl = (center: SelectedCenter | null) => {
+    if (center) {
+      return `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d${center.lng}!3d${center.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${center.lat}%2C${center.lng}!5e0!3m2!1sen!2sin!4v1234567890`;
+    }
+    return "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.358!2d78.4867!3d17.3850!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99daeaebd2c7%3A0xae93b78392bafbc2!2sHyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1234567890";
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
       <Navigation />
+      
+      {/* Fullscreen Map Overlay */}
+      {isMapFullscreen && selectedCenter && (
+        <div className="fixed inset-0 z-50 bg-background">
+          {/* Header */}
+          <div className="absolute top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-sm border-b p-4">
+            <div className="container mx-auto flex items-center justify-between">
+              <div className="flex-1">
+                <h2 className="text-xl font-bold text-foreground">{selectedCenter.name}</h2>
+                <p className="text-sm text-muted-foreground">{selectedCenter.address}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={closeFullscreenMap}>
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Map */}
+          <iframe
+            src={getMapEmbedUrl(selectedCenter)}
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            className="pt-20 pb-24"
+          />
+
+          {/* Bottom Action Bar */}
+          <div className="absolute bottom-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-sm border-t p-4">
+            <div className="container mx-auto flex flex-col sm:flex-row gap-3">
+              <Button 
+                onClick={openGoogleMaps}
+                className="flex-1 gap-2 h-12 text-lg"
+              >
+                <ExternalLink className="h-5 w-5" />
+                Open in Google Maps
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={closeFullscreenMap}
+                className="sm:w-auto h-12"
+              >
+                Close Map
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="text-center mb-8 animate-fade-in">
@@ -84,7 +173,7 @@ const DropOff = () => {
               
               <div className="rounded-lg overflow-hidden border mb-6 h-[500px]">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.358!2d78.4867!3d17.3850!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99daeaebd2c7%3A0xae93b78392bafbc2!2sHyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1234567890"
+                  src={getMapEmbedUrl(null)}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -131,7 +220,11 @@ const DropOff = () => {
                     </div>
                   </div>
 
-                  <Button className="w-full mt-4 gap-2" variant="outline">
+                  <Button 
+                    className="w-full mt-4 gap-2" 
+                    variant="outline"
+                    onClick={() => handleGetDirections(center)}
+                  >
                     <NavigationIcon className="h-4 w-4" />
                     Get Directions
                   </Button>
