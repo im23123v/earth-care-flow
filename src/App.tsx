@@ -16,7 +16,7 @@ import Rewards from "./pages/Rewards";
 import Transparency from "./pages/Transparency";
 import Pledge from "./pages/Pledge";
 import EcoAI from "./pages/EcoAI";
-import JNTUHUCES from "./pages/JNTUHUCES";
+import SPEC from "./pages/SPEC";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,7 +29,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/jntuh-uces" element={<JNTUHUCES />} />
+          <Route path="/spec" element={<SPEC />} />
           <Route path="/calculator" element={<Calculator />} />
           <Route path="/pickup" element={<Pickup />} />
           <Route path="/tracker" element={<Tracker />} />
