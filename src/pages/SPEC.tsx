@@ -18,17 +18,15 @@ import {
   Droplets,
   Zap,
   Download,
-  Plus,
-  Mic
+  Plus
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
 import { toast } from "sonner";
 
-const JNTUHUCES = () => {
+const SPEC = () => {
   const [department, setDepartment] = useState("");
   const [wasteAmount, setWasteAmount] = useState("");
   const [wasteType, setWasteType] = useState("");
-  const [showVoiceAgent, setShowVoiceAgent] = useState(false);
 
   // State for dynamic data
   const [totalEWaste, setTotalEWaste] = useState(4210);
@@ -137,7 +135,7 @@ const JNTUHUCES = () => {
   };
 
   const handleDownloadReport = () => {
-    toast.success("Downloading JNTUH UCES Waste Management Report...");
+    toast.success("Downloading SPEC Waste Management Report...");
   };
 
   return (
@@ -149,13 +147,13 @@ const JNTUHUCES = () => {
         <div className="text-center mb-12 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
             <Building2 className="h-5 w-5" />
-            <span className="text-sm font-medium">JNTUH University College of Engineering, Sultanpur</span>
+            <span className="text-sm font-medium">St. Peter's Engineering College (SPEC)</span>
           </div>
           <h1 className="text-5xl font-bold mb-4 bg-gradient-hero bg-clip-text text-transparent">
             Campus Waste Management Dashboard
           </h1>
           <p className="text-muted-foreground max-w-3xl mx-auto">
-            Real-time tracking of JNTUH UCES's comprehensive waste management initiatives. 
+            Real-time tracking of SPEC's comprehensive waste management initiatives. 
             Leading the way in sustainable campus operations and environmental responsibility.
           </p>
         </div>
@@ -216,49 +214,6 @@ const JNTUHUCES = () => {
                   Add Entry
                 </Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Voice Assistant Section */}
-        <Card className="mb-12 shadow-eco animate-scale-in">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mic className="h-6 w-6 text-primary" />
-              EcoAI Voice Assistant
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              {!showVoiceAgent ? (
-                <div>
-                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center animate-pulse">
-                    <Mic className="h-10 w-10 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">Voice-Activated E-Waste Assistant</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    Get instant answers about campus waste management, recycling guidelines, and sustainability initiatives
-                  </p>
-                  <Button onClick={() => setShowVoiceAgent(true)} size="lg" className="gap-2">
-                    <Mic className="h-5 w-5" />
-                    Start Voice Assistant
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground mb-4">Please add your ElevenLabs agent ID in the code to enable voice chat</p>
-                  {/* Uncomment and add your agent ID to enable:
-                  <Conversation
-                    agentId="YOUR_AGENT_ID_HERE"
-                    onConnect={() => console.log("Voice assistant connected")}
-                    onDisconnect={() => console.log("Voice assistant disconnected")}
-                  />
-                  */}
-                  <Button variant="outline" onClick={() => setShowVoiceAgent(false)}>
-                    Close Assistant
-                  </Button>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -442,4 +397,4 @@ const JNTUHUCES = () => {
   );
 };
 
-export default JNTUHUCES;
+export default SPEC;
