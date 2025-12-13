@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calculator as CalcIcon, Leaf, Zap, Droplets, Trees } from "lucide-react";
+import { Calculator as CalcIcon, Leaf, Zap, Droplets, Trees, IndianRupee } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
 const deviceData: Record<string, { co2: number; energy: number; water: number; materials: number }> = {
@@ -29,12 +29,14 @@ const Calculator = () => {
     const device = deviceData[deviceType];
     const qty = quantity || 1;
     
+    const materialWeight = device.materials * qty;
     setResults({
       co2Saved: (device.co2 * qty).toFixed(1),
       energySaved: (device.energy * qty).toFixed(0),
       waterSaved: (device.water * qty).toFixed(0),
-      materialsSaved: (device.materials * qty).toFixed(2),
+      materialsSaved: materialWeight.toFixed(2),
       treesEquivalent: ((device.co2 * qty) / 21).toFixed(1),
+      approxCost: (materialWeight * 5).toFixed(0),
     });
   };
 
@@ -102,7 +104,7 @@ const Calculator = () => {
             </Card>
 
             {results && (
-              <div className="grid md:grid-cols-2 gap-6 animate-scale-in">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-scale-in">
                 <Card className="shadow-card">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -159,6 +161,21 @@ const Calculator = () => {
                     <p className="text-3xl font-bold text-eco-dark">{results.materialsSaved} kg</p>
                     <p className="text-sm text-muted-foreground mt-2">
                       Including precious metals, plastics, and glass
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-card md:col-span-2 lg:col-span-1">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <IndianRupee className="h-5 w-5 text-orange-500" />
+                      Approx. Value
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-3xl font-bold text-orange-500">₹{results.approxCost}</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Based on ₹5 per kg of recovered materials
                     </p>
                   </CardContent>
                 </Card>
