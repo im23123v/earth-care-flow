@@ -1,13 +1,5 @@
 
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
 Simply open [Lovable](https://lovable.dev/projects/fbeb22e3-d12d-4c9a-aadd-c76776598884) and click on Share -> Publish.
 
 ## Can I connect a custom domain to my Lovable project?
