@@ -1,13 +1,5 @@
 
 
-**URL**: https://lovable.dev/projects/fbeb22e3-d12d-4c9a-aadd-c76776598884
-
-
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/fbeb22e3-d12d-4c9a-aadd-c76776598884) and start prompting.
-
 Changes made via Lovable will be committed automatically to this repo.
 
 **Use your preferred IDE**
